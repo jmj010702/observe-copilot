@@ -1,0 +1,45 @@
+server:
+  # 8080은 관측 대상인 PeopleCore api-gateway가 쓴다.
+  # 둘을 함께 띄워야 하므로 관측 도구 쪽이 8081로 비켜준다.
+  port: 8081
+
+spring:
+  application:
+    name: observe-copilot
+  datasource:
+    url: jdbc:postgresql://localhost:5432/observe_copilot
+    username: postgres
+    password: ${DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  kafka:
+    bootstrap-servers: localhost:9092
+  batch:
+    job:
+      enabled: false
+  quartz:
+    job-store-type: memory
+
+management:
+  endpoints:
+    web:
+      exposure:
+        # 기본적으로 health만 열려 있다. prometheus를 명시해야 수집 엔드포인트가 노출된다.
+        # 필요한 것만 연다 — 운영 환경에서 전체(*) 노출은 내부 정보가 새는 경로가 된다.
+        include: health,info,prometheus
+  metrics:
+    tags:
+      # 모든 메트릭에 application 라벨을 붙인다.
+      # 나중에 앱이 여러 개가 되면 PromQL에서 이 라벨로 구분한다.
+      application: ${spring.application.name}
+    distribution:
+      percentiles-histogram:
+        # 응답시간을 히스토그램 버킷으로 쌓는다.
+        # 이게 있어야 PromQL의 histogram_quantile()로 95/99 퍼센타일을 계산할 수 있다.
+        # 기획서 시나리오 A("응답시간 어땠어?")가 요구하는 지표다.
+        http.server.requests: true
+
+elasticsearch:
+  uris: http://localhost:9200

@@ -1,0 +1,1510 @@
+<title>observe-copilot</title>
+<style>
+/* ─────────────────────────────────────────────────────────────
+   observe-copilot — 설계 기준문서
+   단일 비주얼 월드(슬라이드 덱). 뷰어 테마와 무관하게 동일하게 렌더된다.
+   모든 색은 명시적으로 칠한다.
+   ───────────────────────────────────────────────────────────── */
+
+:root{
+  --rail:#06090C;
+  --ember:#E2603F;
+  --trace:#6EA8FF;
+  --amber:#C9964A;
+
+  --sans:"Pretendard","Pretendard Variable","Apple SD Gothic Neo","Malgun Gothic",
+         "Noto Sans KR",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  --mono:"Cascadia Mono","Cascadia Code","JetBrains Mono","D2Coding","SF Mono",
+         ui-monospace,Consolas,"Courier New",monospace;
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+html{-webkit-text-size-adjust:100%}
+
+body{
+  background:var(--rail);
+  color:#E7EDF4;
+  font-family:var(--sans);
+  line-height:1.6;
+  padding:3vw 2vw 6vw;
+  overflow-x:hidden;
+}
+
+.deck{
+  max-width:1280px;
+  min-width:300px;
+  margin:0 auto;
+  display:flex;
+  flex-direction:column;
+  gap:2.2vw;
+}
+
+/* ── 슬라이드 ─────────────────────────────────────────────── */
+
+.slide{
+  /* light ground (기본) */
+  --bg:#ECEEF1;
+  --fg:#0C1219;
+  --dim:#52616F;
+  --panel:#FFFFFF;
+  --line:#D5DBE2;
+  --acc1:#C4492B;
+  --acc2:#2C68C4;
+  --wash:#E2E6EB;
+
+  container-type:inline-size;
+  aspect-ratio:16/9;
+  background:var(--bg);
+  color:var(--fg);
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  /* 자기 자신은 cqw로 조회할 수 없다 — 패딩은 %(자기 너비 기준)로 준다 */
+  padding:4.5% 5.8% 3.6%;
+  box-shadow:0 1px 0 rgba(255,255,255,.04), 0 2.4vw 4vw -2vw rgba(0,0,0,.6);
+}
+
+.slide.dark{
+  --bg:#0B0F14;
+  --fg:#E7EDF4;
+  --dim:#8493A6;
+  --panel:#141C25;
+  --line:#22303D;
+  --acc1:#E2603F;
+  --acc2:#6EA8FF;
+  --wash:#121A23;
+}
+
+/* 상단 시그니처 바 — 두 축(가설/근거)을 색으로 고정 */
+.slide::before{
+  content:"";
+  position:absolute;top:0;left:0;right:0;height:.4cqw;
+  background:linear-gradient(90deg,var(--ember) 0 46%,var(--trace) 46% 100%);
+}
+.slide.plain::before{display:none}
+
+.pgno{
+  position:absolute;right:2.4cqw;bottom:1.6cqw;
+  font-family:var(--mono);font-size:.85cqw;letter-spacing:.12em;
+  color:var(--dim);opacity:.7;
+  font-variant-numeric:tabular-nums;
+}
+
+/* ── 공통 타이포 ──────────────────────────────────────────── */
+
+.eyebrow{
+  font-family:var(--mono);
+  font-size:1.05cqw;
+  letter-spacing:.2em;
+  text-transform:uppercase;
+  color:var(--acc1);
+  margin-bottom:1.4cqw;
+}
+.eyebrow .sl{color:var(--dim);margin:0 .5em}
+
+h1{font-size:7.6cqw;font-weight:800;line-height:1.02;letter-spacing:-.02em;text-wrap:balance}
+h2{font-size:3.5cqw;font-weight:800;line-height:1.14;letter-spacing:-.015em;text-wrap:balance}
+h3{font-size:1.6cqw;font-weight:700;line-height:1.3}
+
+.sub{
+  font-size:1.28cqw;color:var(--dim);margin-top:.9cqw;max-width:74ch;text-wrap:pretty;
+}
+
+.body{flex:1;min-height:0;display:flex;flex-direction:column;gap:1.75cqw;margin-top:2.1cqw}
+
+p{font-size:1.12cqw;line-height:1.62}
+.small{font-size:.98cqw;line-height:1.55;color:var(--dim)}
+
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+.foot{
+  margin-top:auto;
+  padding-top:1.1cqw;
+  font-family:var(--mono);
+  font-size:.86cqw;
+  letter-spacing:.05em;
+  color:var(--dim);
+  border-top:1px solid var(--line);
+}
+.foot.noline{border-top:0;padding-top:1cqw}
+
+/* ── 표지 / 마무리 ────────────────────────────────────────── */
+
+.cover{justify-content:center;padding:6% 7%}
+.cover .mark{display:flex;gap:.55cqw;margin-bottom:3.2cqw}
+.cover .mark i{display:block;height:.62cqw;border-radius:.4cqw}
+.cover .mark i:first-child{width:11cqw;background:var(--ember)}
+.cover .mark i:last-child{width:6cqw;background:var(--trace)}
+.cover .rom{font-family:var(--mono);font-size:1.35cqw;letter-spacing:.24em;color:var(--trace);margin-top:1.5cqw}
+.cover .tag{font-size:1.9cqw;color:#B9C6D4;margin-top:2.6cqw;font-weight:400}
+.cover hr{border:0;border-top:1px solid #26313D;width:17cqw;margin:2.6cqw 0}
+.cover .meta{font-size:1.18cqw;color:#8493A6;line-height:1.85}
+.cover .stamp{font-family:var(--mono);font-size:1.02cqw;letter-spacing:.16em;color:#5D6C7E;margin-top:2.4cqw}
+
+.endgrid{display:grid;grid-template-columns:8.5cqw 1fr;gap:1.05cqw 2.2cqw;font-size:1.18cqw;margin-top:1cqw}
+.endgrid dt{font-family:var(--mono);font-size:.98cqw;letter-spacing:.1em;color:var(--trace);padding-top:.22cqw}
+.endgrid dd{color:#CDD8E4}
+
+/* ── 섹션 표지 ────────────────────────────────────────────── */
+
+.divider{flex-direction:row;align-items:center;padding:0}
+.divider .left{flex:0 0 66%;padding:0 6cqw;display:flex;flex-direction:column;justify-content:center;height:100%}
+.divider .right{
+  flex:1;height:100%;background:#0F151C;border-left:1px solid #1C2732;
+  display:flex;flex-direction:column;justify-content:center;gap:1.5cqw;padding:0 4cqw;
+}
+.divider .mark{display:flex;flex-direction:column;gap:.5cqw;margin-bottom:3cqw}
+.divider .mark i{display:block;height:.55cqw;border-radius:.4cqw}
+.divider .mark i:first-child{width:9.5cqw;background:var(--ember)}
+.divider .mark i:last-child{width:5cqw;background:var(--trace)}
+.divider .num{font-size:6.2cqw;font-weight:800;color:var(--ember);line-height:1;font-family:var(--mono)}
+.divider h2{font-size:5cqw;margin-top:1.2cqw}
+.divider .rom{font-family:var(--mono);font-size:1.28cqw;letter-spacing:.22em;color:var(--trace);margin-top:1.1cqw}
+.divider .lead{font-size:1.28cqw;color:#93A1B2;margin-top:2.6cqw;max-width:40ch;line-height:1.75}
+.divider ul{list-style:none;display:flex;flex-direction:column;gap:1.5cqw}
+.divider li{font-size:1.18cqw;color:#9FADBE;display:flex;gap:1cqw;align-items:baseline}
+.divider li::before{content:"";width:.5cqw;height:.5cqw;border-radius:50%;background:var(--trace);flex:none;transform:translateY(-.15cqw)}
+
+/* ── 목차 ─────────────────────────────────────────────────── */
+
+.toc{display:flex;flex-direction:column}
+.toc a{
+  display:grid;grid-template-columns:4.5cqw 15cqw 1fr;align-items:baseline;gap:2cqw;
+  padding:1.55cqw 0;border-bottom:1px solid var(--line);
+  text-decoration:none;color:inherit;
+}
+.toc a:last-child{border-bottom:0}
+.toc a:hover .t{color:var(--acc1)}
+.toc a:focus-visible{outline:2px solid var(--acc2);outline-offset:.3cqw}
+.toc .n{font-family:var(--mono);font-size:1.05cqw;color:var(--acc1);letter-spacing:.08em}
+.toc .t{font-size:1.72cqw;font-weight:700}
+.toc .d{font-size:1.02cqw;color:var(--dim)}
+
+/* ── 카드 / 그리드 ────────────────────────────────────────── */
+
+.grid{display:grid;gap:1.5cqw}
+.g2{grid-template-columns:repeat(2,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+.g5{grid-template-columns:repeat(5,1fr)}
+
+.card{
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:.5cqw;
+  padding:1.45cqw 1.6cqw;
+  display:flex;flex-direction:column;gap:.58cqw;
+}
+.card.top{border-top:.32cqw solid var(--acc1);padding-top:1.3cqw}
+.card.top.b{border-top-color:var(--acc2)}
+.card.top.m{border-top-color:var(--dim)}
+.card h3{font-size:1.42cqw}
+.card p{font-size:.99cqw;color:var(--dim);line-height:1.62}
+.card .lab{font-family:var(--mono);font-size:.85cqw;letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+.card .lab.a{color:var(--acc1)}
+.card .lab.b{color:var(--acc2)}
+.card .big{font-size:2.9cqw;font-weight:800;letter-spacing:-.02em;line-height:1.05}
+
+/* 좌측 레일 카드 */
+.rail{
+  background:var(--panel);border:1px solid var(--line);
+  border-left:.3cqw solid var(--acc1);border-radius:.4cqw;
+  padding:1.1cqw 1.4cqw;display:flex;flex-direction:column;gap:.38cqw;
+}
+.rail.b{border-left-color:var(--acc2)}
+.rail.m{border-left-color:var(--dim)}
+.rail h3{font-size:1.3cqw}
+.rail p{font-size:.97cqw;color:var(--dim);line-height:1.6}
+
+/* 강조 패널 */
+.note{
+  background:#0E151D;color:#DCE5EE;border-radius:.5cqw;padding:1.5cqw 1.9cqw;
+  display:flex;flex-direction:column;gap:.55cqw;
+}
+.slide.dark .note{background:#151E28;border:1px solid #22303D}
+.note .lab{font-family:var(--mono);font-size:.9cqw;letter-spacing:.18em;text-transform:uppercase;color:var(--trace)}
+.note strong{font-size:1.52cqw;font-weight:700;line-height:1.4;text-wrap:balance}
+.note p{font-size:1.02cqw;color:#9FADBE}
+
+.note.warm .lab{color:var(--ember)}
+
+.quote{
+  border-left:.28cqw solid var(--acc2);padding-left:1.4cqw;
+  font-size:1.05cqw;line-height:1.7;color:var(--dim);
+}
+
+/* ── 표 ───────────────────────────────────────────────────── */
+
+.tbl{width:100%;border-collapse:collapse;font-size:1.02cqw}
+.tbl th{
+  text-align:left;font-family:var(--mono);font-size:.86cqw;font-weight:400;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--dim);
+  padding:0 1.1cqw .95cqw 0;border-bottom:1px solid var(--line);
+}
+.tbl td{padding:.82cqw 1.1cqw .82cqw 0;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.5}
+.tbl tr:last-child td{border-bottom:0}
+.tbl.dense{font-size:.9cqw}
+.tbl.dense th{padding-bottom:.6cqw}
+.tbl.dense td{padding:.32cqw .9cqw .32cqw 0;line-height:1.35}
+.tbl td.k{font-weight:700}
+.tbl td.mono{font-family:var(--mono);font-size:.95cqw;color:var(--acc2)}
+.tbl td.dim{color:var(--dim)}
+.tbl td.warn{color:var(--acc1)}
+.tbl tr.us td{background:var(--wash)}
+
+.tblwrap{overflow-x:auto}
+
+/* ── 배지 ─────────────────────────────────────────────────── */
+
+.badge{
+  display:inline-flex;align-items:center;gap:.42cqw;
+  font-family:var(--mono);font-size:.82cqw;letter-spacing:.08em;
+  padding:.28cqw .72cqw;border-radius:2cqw;white-space:nowrap;
+  border:1px solid currentColor;
+}
+.badge::before{content:"";width:.42cqw;height:.42cqw;border-radius:50%;background:currentColor}
+.b-fix{color:#2E7D5B}
+.slide.dark .b-fix{color:#5FCB99}
+.b-adj{color:var(--amber)}
+.b-swap{color:var(--acc1)}
+.b-open{color:var(--dim)}
+
+.chip{
+  display:inline-block;font-family:var(--mono);font-size:.82cqw;letter-spacing:.08em;
+  padding:.24cqw .66cqw;border-radius:.28cqw;background:var(--wash);color:var(--dim);
+}
+.chip.a{background:rgba(196,73,43,.12);color:var(--acc1)}
+.chip.b{background:rgba(44,104,196,.12);color:var(--acc2)}
+.slide.dark .chip.a{background:rgba(226,96,63,.16)}
+.slide.dark .chip.b{background:rgba(110,168,255,.14)}
+
+/* ── 파이프라인 (해결됨/빈칸) ─────────────────────────────── */
+
+.pipe{display:grid;grid-template-columns:repeat(5,1fr);gap:1.1cqw;align-items:stretch}
+.pipe .st{
+  background:var(--panel);border:1px solid var(--line);border-top:.32cqw solid var(--line);
+  border-radius:.45cqw;padding:1.4cqw 1.4cqw 1.6cqw;display:flex;flex-direction:column;gap:.5cqw;
+}
+.pipe .st.gap{border-top-color:var(--acc1)}
+.pipe .st .s{font-family:var(--mono);font-size:.84cqw;letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+.pipe .st.gap .s{color:var(--acc1)}
+.pipe .st h3{font-size:1.68cqw}
+.pipe .st p{font-size:.93cqw;color:var(--dim);line-height:1.55}
+
+/* ── 시퀀스 다이어그램 ────────────────────────────────────── */
+
+.seq{display:flex;flex-direction:column;gap:.9cqw}
+.seq-head{display:grid;gap:.5cqw}
+.seq-head span{
+  background:var(--panel);border:1px solid var(--line);border-radius:.35cqw;
+  padding:.75cqw .4cqw;text-align:center;font-size:1cqw;font-weight:700;
+}
+.seq-head span.a{color:var(--acc1)}
+.seq-head span.b{color:var(--acc2)}
+.seq-body{position:relative;display:flex;flex-direction:column;gap:.28cqw;padding:.6cqw 0}
+.seq-lines{position:absolute;inset:0;display:grid;pointer-events:none}
+.seq-lines i{border-left:1px dashed var(--line);justify-self:center}
+.seq-row{display:grid;position:relative;z-index:1}
+.msg{
+  font-family:var(--mono);font-size:.86cqw;line-height:1.4;
+  padding:.32cqw .7cqw .42cqw;border-bottom:1px solid var(--acc2);
+  color:var(--fg);position:relative;
+}
+.msg::after{
+  content:"";position:absolute;bottom:-.28cqw;right:0;
+  border:.28cqw solid transparent;border-left-color:var(--acc2);border-right:0;
+}
+.msg.rev{text-align:right}
+.msg.rev::after{right:auto;left:0;border-left:0;border-right:.28cqw solid var(--acc2)}
+.msg.self{
+  border-bottom:0;border-left:1px solid var(--acc1);
+  color:var(--dim);padding-left:.7cqw;
+}
+.msg.self::after{display:none}
+.msg .em{color:var(--acc1)}
+
+/* ── 결정 상세 ────────────────────────────────────────────── */
+
+.dec{
+  background:var(--panel);border:1px solid var(--line);border-left:.3cqw solid var(--acc2);
+  border-radius:.4cqw;padding:1.1cqw 1.5cqw;
+  display:grid;grid-template-columns:7cqw 1fr 1fr auto;gap:.35cqw 1.5cqw;align-items:start;
+}
+.dec.warm{border-left-color:var(--acc1)}
+.slide.compact .dec{padding:.82cqw 1.45cqw;gap:.28cqw 1.5cqw}
+.slide.compact .dec .ti{font-size:1.22cqw}
+.slide.compact .dec .why,.slide.compact .dec .to{font-size:.92cqw;line-height:1.5}
+.dec .id{font-family:var(--mono);font-size:.95cqw;color:var(--acc1);letter-spacing:.06em;padding-top:.18cqw}
+.dec .ti{font-size:1.28cqw;font-weight:700;grid-column:2/4}
+.dec .st{justify-self:end}
+.dec .why{grid-column:2;font-size:.95cqw;color:var(--dim);line-height:1.6}
+.dec .to{grid-column:3/5;font-size:.95cqw;color:var(--dim);line-height:1.6}
+.dec .to b{color:var(--fg);font-weight:400}
+.dec .to .p{color:#2E7D5B}
+.slide.dark .dec .to .p{color:#5FCB99}
+.dec .to .m{color:var(--acc1)}
+
+/* ── 로드맵 ───────────────────────────────────────────────── */
+
+.mile{
+  background:var(--panel);border:1px solid var(--line);border-left:.3cqw solid var(--line);
+  border-radius:.4cqw;padding:1.25cqw 1.7cqw;
+  display:grid;grid-template-columns:7.5cqw 1fr 15cqw 6.5cqw;gap:1.6cqw;align-items:center;
+}
+.mile.now{border-left-color:var(--acc1)}
+.mile.next{border-left-color:var(--acc2)}
+.mile .ph{font-family:var(--mono);font-size:1.05cqw;color:var(--acc1);letter-spacing:.06em}
+.mile.next .ph,.mile .ph.b{color:var(--acc2)}
+.mile h3{font-size:1.32cqw}
+.mile .out{font-size:.95cqw;color:var(--dim)}
+.mile .stt{justify-self:end}
+
+/* ── 리스트 ───────────────────────────────────────────────── */
+
+.list{list-style:none;display:flex;flex-direction:column;gap:.7cqw}
+.list li{font-size:1cqw;line-height:1.55;color:var(--dim);display:flex;gap:.8cqw;align-items:baseline}
+.list li::before{content:"";width:.34cqw;height:.34cqw;border-radius:50%;background:var(--acc2);flex:none;transform:translateY(-.2cqw)}
+.list li b{color:var(--fg);font-weight:700}
+.list.a li::before{background:var(--acc1)}
+.list.x li::before{
+  content:"×";width:auto;height:auto;background:none;border-radius:0;
+  font-family:var(--mono);color:var(--acc1);transform:none;font-size:.95cqw;
+}
+.list.ok li::before{
+  content:"✓";width:auto;height:auto;background:none;border-radius:0;
+  font-family:var(--mono);color:var(--acc2);transform:none;font-size:.95cqw;
+}
+
+.cols2{display:grid;grid-template-columns:1fr 1fr;gap:2.4cqw}
+.colhead{
+  font-family:var(--mono);font-size:.9cqw;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--dim);padding-bottom:.9cqw;margin-bottom:1.2cqw;border-bottom:1px solid var(--line);
+}
+.colhead.a{color:var(--acc1)}
+.colhead.b{color:var(--acc2)}
+
+/* ── 인쇄 ─────────────────────────────────────────────────── */
+
+@page{size:1280px 720px;margin:0}
+@media print{
+  body{padding:0;background:#fff}
+  .deck{gap:0;max-width:none}
+  .slide{box-shadow:none;break-after:page;width:1280px;min-height:720px;aspect-ratio:auto}
+  .slide:last-child{break-after:auto}
+}
+
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+}
+</style>
+
+<div class="deck">
+
+<!-- 01 표지 ───────────────────────────────────────────────── -->
+<section class="slide dark cover">
+  <div class="mark"><i></i><i></i></div>
+  <h1>observe&#8209;copilot</h1>
+  <div class="rom">관측성 코파일럿</div>
+  <div class="tag">원인을 확정하지 않는다. 후보를 좁힌다.</div>
+  <hr>
+  <div class="meta">
+    Grafana · Prometheus 메트릭과 Elasticsearch 로그를 자연어로 질의하고,<br>
+    장애 시 LLM이 근본원인 <b>후보</b>를 근거와 함께 요약하는 백엔드 도구<br>
+    설계 기준문서
+  </div>
+  <div class="stamp">2026.08.13 &nbsp;·&nbsp; INTERNAL TOOL &nbsp;·&nbsp; v0.1 &nbsp;·&nbsp; PHASE 1 미착수</div>
+  <div class="pgno">01</div>
+</section>
+
+<!-- 02 목차 ───────────────────────────────────────────────── -->
+<section class="slide">
+  <div class="eyebrow">CONTENTS</div>
+  <h2>목차</h2>
+  <div class="body">
+    <nav class="toc">
+      <a href="#s1"><span class="n">01</span><span class="t">문제의식</span><span class="d">장애 대응의 시간 손실 · 기존 도구의 경계 · 우리가 노리는 빈칸</span></a>
+      <a href="#s2"><span class="n">02</span><span class="t">제품 정의</span><span class="d">타겟 · MVP 범위 · LLM 출력 안전장치 · 표현 규칙 · 성공 기준</span></a>
+      <a href="#s3"><span class="n">03</span><span class="t">아키텍처</span><span class="d">시스템 컨텍스트 · 레이어 · 시나리오 흐름 · 실패 모드 · 설계 결정 15건</span></a>
+      <a href="#s4"><span class="n">04</span><span class="t">검증 전략</span><span class="d">실제 장애가 없다는 제약 · 부하 생성 · 장애 주입 시나리오</span></a>
+      <a href="#s5"><span class="n">05</span><span class="t">측정</span><span class="d">측정 항목 · 기록 규칙 · 채점 기준이라는 선결 과제</span></a>
+      <a href="#s6"><span class="n">06</span><span class="t">로드맵</span><span class="d">Phase 1&#8209;4 마일스톤 · 현재 상태 · 다음 액션</span></a>
+    </nav>
+  </div>
+  <div class="pgno">02</div>
+</section>
+
+<!-- 03 §01 표지 ───────────────────────────────────────────── -->
+<section class="slide dark divider plain" id="s1">
+  <div class="left">
+    <div class="mark"><i></i><i></i></div>
+    <div class="num">01</div>
+    <h2>문제의식</h2>
+    <div class="rom">PROBLEM</div>
+    <div class="lead">
+      데이터는 이미 다 쌓여 있다.<br>
+      부족한 것은 그것을 읽어내는 시간이다.
+    </div>
+  </div>
+  <div class="right">
+    <ul>
+      <li>장애 대응의 시간 손실</li>
+      <li>기존 도구가 멈추는 지점</li>
+      <li>우리가 노리는 빈칸</li>
+    </ul>
+  </div>
+  <div class="pgno">03</div>
+</section>
+
+<!-- 04 시간 손실 ──────────────────────────────────────────── -->
+<section class="slide">
+  <div class="eyebrow">01 <span class="sl">/</span> FRICTION</div>
+  <h2>장애 대응은 어디에서 시간을 잃는가</h2>
+  <p class="sub">데이터가 없어서 느린 게 아니다. 세 개의 도구에 나뉘어 있고, 그 사이를 사람이 손으로 잇기 때문에 느리다.</p>
+  <div class="body">
+    <div class="grid g5">
+      <div class="card top m">
+        <span class="lab">STEP 01</span>
+        <h3>알람 수신</h3>
+        <p>임계치 초과 통보. 무엇이 넘었는지는 알지만 왜 넘었는지는 없다.</p>
+      </div>
+      <div class="card top m">
+        <span class="lab">STEP 02</span>
+        <h3>대시보드 확인</h3>
+        <p>Grafana에서 시간축을 알람 시점으로 맞추고 관련 패널을 찾는다.</p>
+      </div>
+      <div class="card top">
+        <span class="lab a">STEP 03</span>
+        <h3>메트릭 파고들기</h3>
+        <p>PromQL을 직접 쓴다. 메트릭명·라벨을 기억하거나 찾아야 한다.</p>
+      </div>
+      <div class="card top">
+        <span class="lab a">STEP 04</span>
+        <h3>로그 대조</h3>
+        <p>Kibana로 옮겨 같은 구간을 다시 지정하고 쿼리를 다시 쓴다.</p>
+      </div>
+      <div class="card top">
+        <span class="lab a">STEP 05</span>
+        <h3>상관관계 판단</h3>
+        <p>메트릭과 로그를 머릿속에서 겹쳐 가설을 세운다. 전적으로 사람 몫.</p>
+      </div>
+    </div>
+    <div class="note">
+      <div class="lab">공통 원인</div>
+      <strong>도구를 옮길 때마다 시간축 · 대상 · 필터를 손으로 다시 맞춘다.</strong>
+      <p>03~05번은 담당자의 숙련도에 전적으로 의존한다. 같은 장애라도 누가 보느냐에 따라 도달 시간이 갈린다. 자동화되지 않은 것은 수집이나 시각화가 아니라 <b>수집된 것을 읽는 절차</b>다.</p>
+    </div>
+  </div>
+  <div class="foot">
+    이 문서는 근거 없는 수치를 싣지 않는다. "평균 몇 분이 걸린다"는 baseline은 아직 측정되지 않았고, Phase 1의 측정 항목으로 남겨둔다 → <span style="color:var(--acc2)">05 측정</span>
+  </div>
+  <div class="pgno">04</div>
+</section>
+
+<!-- 05 기존 도구 비교 ─────────────────────────────────────── -->
+<section class="slide">
+  <div class="eyebrow">01 <span class="sl">/</span> LANDSCAPE</div>
+  <h2>기존 도구는 어디까지 해주는가</h2>
+  <p class="sub">다섯 축으로 비교했다. 앞의 세 축은 이미 성숙했고, 뒤의 두 축에서 전부 비어 있다.</p>
+  <div class="body">
+    <div class="tblwrap">
+      <table class="tbl">
+        <thead>
+          <tr>
+            <th style="width:15%">도구</th>
+            <th style="width:16%">수집 · 저장</th>
+            <th style="width:17%">시각화 · 탐색</th>
+            <th style="width:16%">임계치 알람</th>
+            <th style="width:18%">도구 간 상관</th>
+            <th style="width:18%">원인 후보 제시</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="k">Prometheus</td>
+            <td class="dim">메트릭 시계열</td>
+            <td class="dim">PromQL 수동 작성</td>
+            <td class="dim">규칙 기반</td>
+            <td class="warn">없음</td>
+            <td class="warn">없음</td>
+          </tr>
+          <tr>
+            <td class="k">Grafana</td>
+            <td class="dim">저장소 연결만</td>
+            <td class="dim">대시보드 · 패널</td>
+            <td class="dim">규칙 · 알림 채널</td>
+            <td class="dim">나란히 배치까지</td>
+            <td class="warn">없음</td>
+          </tr>
+          <tr>
+            <td class="k">Elasticsearch · Kibana</td>
+            <td class="dim">로그 색인</td>
+            <td class="dim">Query DSL 수동 작성</td>
+            <td class="dim">임계치 워처</td>
+            <td class="warn">없음</td>
+            <td class="warn">없음</td>
+          </tr>
+          <tr class="us">
+            <td class="k" style="color:var(--acc1)">observe&#8209;copilot</td>
+            <td class="dim">직접 저장하지 않음<br><span style="font-size:.86cqw">위 저장소를 읽기 전용으로 조회</span></td>
+            <td class="dim">자연어 질의<br><span style="font-size:.86cqw">변환된 쿼리를 함께 노출</span></td>
+            <td class="dim">알람을 입력으로 받음<br><span style="font-size:.86cqw">발생시키지 않는다</span></td>
+            <td style="color:var(--acc2)">메트릭 + 로그 동일 구간 자동 수집</td>
+            <td style="color:var(--acc2)">가설 2~3개 + 확신도<br><span style="font-size:.86cqw">근거 원본 병기</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="quote">
+      기존 도구는 <b>무엇이 일어났는지</b>를 보여주는 데서 끝난다. <b>무엇부터 확인해야 하는지</b>를 좁혀주지 않는다. 이 도구가 대체하려는 것은 저장소나 대시보드가 아니라, 그 사이를 사람이 손으로 잇는 절차다.
+    </div>
+  </div>
+  <div class="foot">비교 기준: 오픈소스 기본 구성 · 2026.08 시점 · 상용 부가 기능(관리형 이상탐지 등)은 제외</div>
+  <div class="pgno">05</div>
+</section>
+
+<!-- 06 빈칸 ───────────────────────────────────────────────── -->
+<section class="slide dark">
+  <div class="eyebrow">01 <span class="sl">/</span> OPPORTUNITY</div>
+  <h2>우리가 노리는 빈칸</h2>
+  <p class="sub">관측성 파이프라인을 다섯 단계로 끊어 보면, 마지막 두 칸에서만 사람이 여전히 전부를 한다.</p>
+  <div class="body">
+    <div class="pipe">
+      <div class="st"><span class="s">해결됨</span><h3>수집</h3><p>익스포터·에이전트로 자동화됐다</p></div>
+      <div class="st"><span class="s">해결됨</span><h3>시각화</h3><p>대시보드는 충분히 성숙했다</p></div>
+      <div class="st"><span class="s">해결됨</span><h3>알람</h3><p>임계치 규칙으로 감지된다</p></div>
+      <div class="st gap"><span class="s">빈칸</span><h3>상관</h3><p>메트릭과 로그를 겹쳐 보는 일은 사람 몫이다</p></div>
+      <div class="st gap"><span class="s">빈칸</span><h3>해석</h3><p>무엇부터 볼지 좁혀주는 단계. 아무도 하지 않는다</p></div>
+    </div>
+    <div class="note warm">
+      <div class="lab">THESIS</div>
+      <strong>보여주는 것 다음 단계는 좁혀주는 것이다.</strong>
+      <p>LLM은 정확히 이 빈칸을 메우는 기술이다. 다만 <b>대신 결론을 내리는 방식이 아니라</b>, 흩어진 근거를 한 화면에 모아 후보에 순위를 붙이는 방식으로만 쓴다.</p>
+    </div>
+    <div class="grid g2">
+      <div class="rail b">
+        <h3>왜 지금인가</h3>
+        <p>컨텍스트 길이가 시계열 구간과 로그 수백 줄을 한 번에 담을 만큼 커졌고, 툴 콜링으로 "쿼리 생성 → 검증 → 실행"을 분리할 수 있게 됐다. 생성과 실행 사이에 검증을 끼울 수 없었다면 이 설계는 성립하지 않는다.</p>
+      </div>
+      <div class="rail">
+        <h3>왜 이 도메인인가</h3>
+        <p>정답이 데이터에 있다. 요약에 쓰인 수치는 전부 수집된 원본에 존재해야 하므로, 환각을 <b>사후 검증 가능한 형태</b>로 통제할 수 있다. 근거를 붙일 수 없는 도메인이었다면 안전장치를 만들 방법이 없다.</p>
+      </div>
+    </div>
+  </div>
+  <div class="pgno">06</div>
+</section>
+
+<!-- 07 §02 표지 ───────────────────────────────────────────── -->
+<section class="slide dark divider plain" id="s2">
+  <div class="left">
+    <div class="mark"><i></i><i></i></div>
+    <div class="num">02</div>
+    <h2>제품 정의</h2>
+    <div class="rom">PRODUCT</div>
+    <div class="lead">
+      하지 않는 것을 먼저 못박는다.<br>
+      이 도구의 가치는 범위를 좁힌 데서 나온다.
+    </div>
+  </div>
+  <div class="right">
+    <ul>
+      <li>문제와 타겟</li>
+      <li>MVP 범위</li>
+      <li>LLM 출력 안전장치</li>
+      <li>확신도와 표현 규칙</li>
+      <li>성공 기준과 리스크</li>
+    </ul>
+  </div>
+  <div class="pgno">07</div>
+</section>
+
+<!-- 08 타겟 ───────────────────────────────────────────────── -->
+<section class="slide">
+  <div class="eyebrow">02 <span class="sl">/</span> TARGET</div>
+  <h2>문제 정의와 타겟 사용자</h2>
+  <p class="sub">B2C가 아니다. 이미 관측 스택을 운영 중인 사람이 쓰는 내부 도구다.</p>
+  <div class="body">
+    <div class="grid g2">
+      <div class="rail">
+        <h3>서비스 운영자</h3>
+        <p>알람을 받고 가장 먼저 대응하는 사람. 대시보드를 세 개 열어 시간축을 맞추는 동안 장애는 계속 진행된다. 필요한 것은 새 대시보드가 아니라 <b>어디부터 볼지에 대한 후보</b>다.</p>
+      </div>
+      <div class="rail b">
+        <h3>백엔드 개발자</h3>
+        <p>PromQL·Query DSL을 매일 쓰지는 않는다. 메트릭명과 라벨을 매번 찾는 데 시간을 쓴다. 자연어로 묻고 <b>변환된 쿼리를 확인</b>할 수 있으면 그 시간이 사라진다.</p>
+      </div>
+    </div>
+    <div class="grid g2">
+      <div class="card top m">
+        <span class="lab">전제</span>
+        <h3>이미 스택은 있다</h3>
+        <p>Prometheus·Elasticsearch·Grafana가 이미 돌고 있다는 것이 전제다. 이 도구는 저장소를 대체하지 않고 그 위에 얹힌다. 도입 비용이 "읽기 권한 하나"에 그치는 것이 설계 목표다.</p>
+      </div>
+      <div class="card top">
+        <span class="lab a">범위 밖</span>
+        <h3>1인 · 소규모 운영 전제</h3>
+        <p>멀티테넌시와 세분화된 권한 관리는 넣지 않는다. 이 결정으로 인증·격리 설계를 통째로 덜어내고, 그 시간을 요약 품질 검증에 쓴다.</p>
+      </div>
+    </div>
+    <div class="note">
+      <div class="lab">KEY INSIGHT</div>
+      <strong>이 도구의 출력은 답이 아니라 <span style="color:var(--ember)">검토 순서</span>다.</strong>
+      <p>최종 판단은 항상 사람이 한다. 그래서 요약의 품질보다 <b>근거에 도달하는 속도</b>가 더 중요한 지표다. 요약이 틀려도 근거가 옆에 있으면 사용자는 손해를 보지 않는다.</p>
+    </div>
+  </div>
+  <div class="pgno">08</div>
+</section>
+
+<!-- 09 MVP 범위 ───────────────────────────────────────────── -->
+<section class="slide">
+  <div class="eyebrow">02 <span class="sl">/</span> SCOPE</div>
+  <h2>MVP 범위</h2>
+  <p class="sub">못 하는 것이 아니라 의도적으로 미룬 것. 제외 항목에는 전부 근거가 붙는다.</p>
+  <div class="body">
+    <div class="cols2">
+      <div>
+        <div class="colhead b">포함 — IN SCOPE</div>
+        <ul class="list ok">
+          <li><b>자연어 → 메트릭 질의</b><br>의도를 파싱해 PromQL로 변환하고 Prometheus를 조회해 결과를 요약한다</li>
+          <li><b>자연어 → 로그 질의</b><br>Elasticsearch 로그를 검색하고 결과를 요약한다</li>
+          <li><b>알람 시 자동 근본원인 요약</b><br>임계치 초과 시 관련 메트릭·로그를 자동 수집해 원인 후보를 텍스트로 제시한다</li>
+          <li><b>요약과 원본의 동시 노출</b><br>대시보드가 LLM 요약과 원본 데이터(그래프·로그 라인)를 나란히 표시한다</li>
+        </ul>
+      </div>
+      <div>
+        <div class="colhead a">제외 — OUT OF SCOPE</div>
+        <ul class="list x">
+          <li><b>자동 조치</b> — 재시작·스케일링·설정 변경<br>오판 시 리스크가 회수 불가능하다. 1차 버전에서 절대 넣지 않는다</li>
+          <li><b>초 단위 실시간 대응</b><br>매 신호마다 LLM을 호출하면 비용과 지연이 선형으로 늘어난다. 수 분 단위 배치로 축소</li>
+          <li><b>멀티테넌시 · 세분화 권한</b><br>1인·소규모 운영 전제. 인증 설계를 덜어내고 요약 품질 검증에 시간을 쓴다</li>
+          <li><b>모델 파인튜닝</b><br>프롬프트 설계와 쿼리 검증 범위 안에서 해결한다</li>
+        </ul>
+      </div>
+    </div>
+    <div class="quote">
+      제외 항목 중 <b>자동 조치</b>만 성격이 다르다. 나머지 셋은 "나중에 한다"이지만, 자동 조치는 이 도구의 정체성상 <b>영구 제외</b>다. 읽기 전용이라는 사실이 시스템 컨텍스트 · 권한 설계 · 실패 모드 전부의 전제가 되기 때문이다.
+    </div>
+  </div>
+  <div class="pgno">09</div>
+</section>
+
+<!-- 10 안전장치 ───────────────────────────────────────────── -->
+<section class="slide dark">
+  <div class="eyebrow">02 <span class="sl">/</span> GUARDRAILS</div>
+  <h2>LLM 출력 안전장치 4건</h2>
+  <p class="sub">원칙을 구호로 적으면 위반 여부를 판정할 수 없다. 각 항목에 "무엇이 위반인가"를 붙여 코드 리뷰 기준으로 쓴다.</p>
+  <div class="body">
+    <div class="grid g2">
+      <div class="card top">
+        <span class="lab a">G-1 &nbsp;근거 병기 강제</span>
+        <h3>요약을 단독으로 반환하는 경로를 만들지 않는다</h3>
+        <p>응답 DTO는 요약과 근거(원본 로그 라인, 메트릭 시계열)를 항상 함께 담는다.</p>
+        <p style="color:var(--acc1)"><b>위반 판정</b> — 근거 필드 없이 요약만 있는 응답 타입이 존재하면 설계 위반. 프런트에서 근거를 감추는 것도 위반.</p>
+      </div>
+      <div class="card top">
+        <span class="lab a">G-2 &nbsp;가설로 표현</span>
+        <h3>확정형으로 서술하지 않는다</h3>
+        <p>원인 후보는 가설형 문장으로 쓰고 확신도(높음/중간/낮음)를 함께 반환한다.</p>
+        <p style="color:var(--acc1)"><b>위반 판정</b> — "원인은 X입니다" 형태의 출력, 또는 확신도 필드가 비어 있는 응답.</p>
+      </div>
+      <div class="card top b">
+        <span class="lab b">G-3 &nbsp;자동 조치 금지</span>
+        <h3>시스템 상태를 바꾸는 동작을 구현하지 않는다</h3>
+        <p>재시작·스케일링·설정 변경 없음. 이 도구는 읽기 전용이다.</p>
+        <p style="color:var(--acc2)"><b>위반 판정</b> — 외부 시스템으로 나가는 쓰기 호출이 하나라도 존재하면 위반. 연결 자체를 읽기 전용 계정으로 제한한다.</p>
+      </div>
+      <div class="card top b">
+        <span class="lab b">G-4 &nbsp;배치 주기 요약</span>
+        <h3>초 단위 실시간 대응을 시도하지 않는다</h3>
+        <p>알람 대응은 수 분 단위 배치로 처리한다. 비용과 지연을 예측 가능한 범위에 묶는다.</p>
+        <p style="color:var(--acc2)"><b>위반 판정</b> — 알람 수신 경로에서 동기 LLM 호출이 일어나면 위반.</p>
+      </div>
+    </div>
+    <div class="note warm">
+      <div class="lab">왜 판정 기준까지 적는가</div>
+      <strong>"근거를 함께 보여줄 것"은 판정 불가, "근거 없이 요약만 있는 응답은 설계 위반"은 판정 가능하다.</strong>
+      <p>안전장치는 배경 설명이 아니라 <b>코드 리뷰 기준</b>이다. 리뷰에서 통과/불통과를 가를 수 없는 문장은 지켜지지 않는다.</p>
+    </div>
+  </div>
+  <div class="pgno">10</div>
+</section>
+
+<!-- 11 표현 규칙 ──────────────────────────────────────────── -->
+<section class="slide">
+  <div class="eyebrow">02 <span class="sl">/</span> VOICE</div>
+  <h2>확신도와 표현 규칙</h2>
+  <p class="sub">출력의 문장 구조 자체가 안전장치다. 사실 → 동시성 → 가설 → 확신도 → 근거 순서를 고정한다.</p>
+  <div class="body">
+    <div class="cols2">
+      <div>
+        <div class="colhead b">이렇게 말한다</div>
+        <div class="card" style="gap:.9cqw">
+          <p style="color:var(--fg);font-size:1.05cqw;line-height:1.72">
+            "14:02부터 <b>5xx 비율이 3.1%로 올랐습니다.</b> 같은 시각 DB 커넥션 대기 시간도 함께 증가했습니다.
+            <b>커넥션 풀 고갈이 원인일 가능성이 있습니다</b> — 확신도 중간.
+            다만 같은 시각 배포 이력도 있어 배제하지 않았습니다 — 확신도 낮음."
+          </p>
+          <p class="mono" style="font-size:.88cqw;color:var(--acc2)">근거 · 메트릭 2건 · 로그 18줄 &nbsp;→ 아래 첨부</p>
+        </div>
+      </div>
+      <div>
+        <div class="colhead a">이렇게 말하지 않는다</div>
+        <div class="card" style="gap:.9cqw">
+          <p style="color:var(--dim);font-size:1.05cqw;line-height:1.72">
+            "DB 커넥션 풀 고갈이 원인입니다. 풀 크기를 40으로 늘리세요."
+          </p>
+          <p class="mono" style="font-size:.88cqw;color:var(--acc1)">확정형 · 조치 지시 · 근거 없음 — 세 가지 모두 위반</p>
+        </div>
+      </div>
+    </div>
+    <div class="grid g3">
+      <div class="card top"><span class="lab a">확신도 · 높음</span><p>근거가 시간과 대상 모두에서 일치하고, 알려진 실패 패턴과 부합한다.</p></div>
+      <div class="card top" style="border-top-color:var(--amber)"><span class="lab" style="color:var(--amber)">확신도 · 중간</span><p>시간대는 일치하나 인과를 특정할 근거가 부족하다. 동시 발생과 인과를 구분해 서술한다.</p></div>
+      <div class="card top m"><span class="lab">확신도 · 낮음</span><p>정황만 있다. 배제하지 않기 위해 남긴다 — 목록에서 지우는 것도 판단이기 때문이다.</p></div>
+    </div>
+    <div class="quote">원칙: 관측된 사실을 먼저 말하고 판단은 사용자에게 남긴다. 조치를 지시하지 않는다.</div>
+  </div>
+  <div class="foot">확신도 3단계는 기획서에서 확정된 항목이다. 각 단계의 판정 정의는 이 문서의 <b style="color:var(--acc1)">제안</b>이며 Phase 3 채점 결과로 조정한다.</div>
+  <div class="pgno">11</div>
+</section>
+
+<!-- 12 성공 기준 / 리스크 ─────────────────────────────────── -->
+<section class="slide">
+  <div class="eyebrow">02 <span class="sl">/</span> METRICS &amp; RISK</div>
+  <h2>성공 기준과 리스크 대응</h2>
+  <p class="sub">성공 기준은 전부 측정 가능한 형태로 적는다. 아직 목표값을 정할 수 없는 항목은 "미정"이라고 쓴다.</p>
+  <div class="body">
+    <div class="cols2">
+      <div>
+        <div class="colhead b">성공 기준</div>
+        <table class="tbl">
+          <tbody>
+            <tr><td class="k">재현 가능한 장애 시나리오</td><td class="mono" style="text-align:right">2~3개 이상 시연</td></tr>
+            <tr><td class="k">자연어 → PromQL 변환 성공률</td><td class="mono" style="text-align:right;color:var(--acc1)">목표값 미정 · 채점 기준 선행</td></tr>
+            <tr><td class="k">원인 후보 적중</td><td class="mono" style="text-align:right;color:var(--acc1)">시나리오별 정답 라벨 필요</td></tr>
+            <tr><td class="k">요약 응답 시간 · 호출당 비용</td><td class="mono" style="text-align:right;color:var(--acc1)">baseline 미측정</td></tr>
+            <tr><td class="k">스택 선택의 설명 가능성</td><td class="dim" style="text-align:right">각 구성요소가 왜 필요했는지 답할 수 있을 것</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <div class="colhead a">리스크와 대응</div>
+        <div style="display:flex;flex-direction:column;gap:.7cqw">
+          <div class="rail"><h3>환각 — 근거 없는 원인 제시</h3><p>원본 인용 강제 · 가설 표현 강제 · 확신도 명시. 요약 내 수치가 원본에 없으면 경고 플래그.</p></div>
+          <div class="rail"><h3>비용 · 지연</h3><p>실시간 대신 수 분 단위 배치. 동일 질의 패턴 캐싱을 전제로 설계한다.</p></div>
+          <div class="rail b"><h3>데이터 부족 — 실제 이상 신호가 없다</h3><p>부하로 정상 패턴을 만들고 장애를 주입한다 → <b>04 검증 전략</b></p></div>
+          <div class="rail b"><h3>과신 UX — 요약을 사실로 오인</h3><p>원본 데이터 상시 병기, "확정 아님" 문구 고정 노출.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="foot">목표값이 비어 있는 것은 누락이 아니다. 조건 없는 수치는 재현할 수 없고, 재현할 수 없으면 비교할 수 없다 → <b style="color:var(--acc2)">05 측정</b></div>
+  <div class="pgno">12</div>
+</section>
+
+<!-- 13 §03 표지 ───────────────────────────────────────────── -->
+<section class="slide dark divider plain" id="s3">
+  <div class="left">
+    <div class="mark"><i></i><i></i></div>
+    <div class="num">03</div>
+    <h2>아키텍처</h2>
+    <div class="rom">ARCHITECTURE</div>
+    <div class="lead">
+      보여줄 가치가 있는 건 결론이 아니라<br>
+      트레이드오프를 인지했다는 증거다.
+    </div>
+  </div>
+  <div class="right">
+    <ul>
+      <li>시스템 컨텍스트</li>
+      <li>레이어 구성</li>
+      <li>코드 레이어 책임 경계</li>
+      <li>시나리오 흐름 2건</li>
+      <li>실패 모드와 복구</li>
+      <li>설계 결정 15건</li>
+    </ul>
+  </div>
+  <div class="pgno">13</div>
+</section>
+
+<!-- 14 시스템 컨텍스트 ────────────────────────────────────── -->
+<section class="slide">
+  <div class="eyebrow">03 <span class="sl">/</span> CONTEXT</div>
+  <h2>시스템 컨텍스트</h2>
+  <p class="sub">외부 연결이 다섯 개다. 그중 어느 쪽으로도 쓰기가 나가지 않는 것이 이 그림의 핵심이다.</p>
+  <div class="body">
+    <div class="grid" style="grid-template-columns:1fr 1.25fr 1fr;align-items:center;gap:1.15cqw">
+      <div style="display:flex;flex-direction:column;gap:1.3cqw">
+        <div class="card top">
+          <span class="lab a">PERSON</span>
+          <h3>서비스 운영자</h3>
+          <p class="mono" style="font-size:.86cqw;color:var(--acc2)">질의 · 요약 확인</p>
+        </div>
+        <div class="card top">
+          <span class="lab a">PERSON</span>
+          <h3>백엔드 개발자</h3>
+          <p class="mono" style="font-size:.86cqw;color:var(--acc2)">자연어 → 쿼리 확인</p>
+        </div>
+      </div>
+
+      <div style="background:#0B0F14;color:#E7EDF4;border-radius:.5cqw;padding:2.6cqw 2cqw;text-align:center;display:flex;flex-direction:column;gap:.7cqw">
+        <span class="mono" style="font-size:.86cqw;letter-spacing:.18em;color:var(--trace)">SOFTWARE SYSTEM</span>
+        <h3 style="font-size:2.3cqw;font-weight:800">observe&#8209;copilot</h3>
+        <p style="font-size:.98cqw;color:#8493A6">자연어 질의 · 근본원인 후보 요약</p>
+        <div style="display:flex;gap:.4cqw;justify-content:center;margin-top:.7cqw">
+          <span class="mono" style="font-size:.8cqw;color:var(--ember);border:1px solid var(--ember);border-radius:2cqw;padding:.2cqw .7cqw">READ&nbsp;ONLY</span>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:.75cqw">
+        <div class="rail b" style="padding:1cqw 1.3cqw"><h3 style="font-size:1.15cqw">Prometheus</h3><p style="font-size:.88cqw">메트릭 조회 · 알람 수신</p></div>
+        <div class="rail b" style="padding:1cqw 1.3cqw"><h3 style="font-size:1.15cqw">Elasticsearch</h3><p style="font-size:.88cqw">로그 검색</p></div>
+        <div class="rail b" style="padding:1cqw 1.3cqw"><h3 style="font-size:1.15cqw">Kafka</h3><p style="font-size:.88cqw">이벤트 스트림 구독</p></div>
+        <div class="rail" style="padding:1cqw 1.3cqw"><h3 style="font-size:1.15cqw">Claude API</h3><p style="font-size:.88cqw">쿼리 변환 · 요약 생성</p></div>
+        <div class="rail" style="padding:1cqw 1.3cqw"><h3 style="font-size:1.15cqw">Grafana</h3><p style="font-size:.88cqw">대시보드 임베드 또는 연동</p></div>
+      </div>
+    </div>
+    <div class="note warm">
+      <div class="lab">CORE RULE</div>
+      <strong>모든 외부 연결은 읽기 전용이다.</strong>
+      <p>Prometheus·Elasticsearch·Kafka로 나가는 쓰기 호출은 존재하지 않는다. 이 제약은 문서상 약속이 아니라 <b>연결 계정의 권한으로 강제</b>한다. 에이전트가 오작동해도 외부 시스템 상태는 바뀔 수 없어야 한다.</p>
+    </div>
+  </div>
+  <div class="pgno">14</div>
+</section>
+
+<!-- 15 레이어 구성 ───────────────────────────────────────── -->
+<section class="slide">
+  <div class="eyebrow">03 <span class="sl">/</span> LAYERS</div>
+  <h2>레이어 구성</h2>
+  <p class="sub">각 레이어가 무엇을 하지 않는지까지 적어야 경계가 지켜진다.</p>
+  <div class="body" style="flex-direction:row;gap:2.1cqw">
+    <div style="flex:1.55;display:flex;flex-direction:column;gap:.62cqw">
+      <div class="rail b"><h3>데이터 소스</h3><p><span class="chip b">Prometheus</span> <span class="chip b">Elasticsearch</span> <span class="chip b">Kafka</span> &nbsp;메트릭 · 로그 · 이벤트 원천. 이 도구가 소유하지 않는다.</p></div>
+      <div class="rail"><h3>수집 · 정규화</h3><p><span class="chip a">Spring Boot</span> &nbsp;원천 데이터를 LLM 입력용 컨텍스트로 가공한다. 토큰 예산 안으로 축약하는 책임도 여기.</p></div>
+      <div class="rail"><h3>배치 · 스케줄링</h3><p><span class="chip a">Spring Batch</span> <span class="chip a">Quartz</span> &nbsp;주기적 집계, 이상탐지 룰 트리거. 알람 대응이 동기 경로를 타지 않게 막는 지점.</p></div>
+      <div class="rail"><h3>LLM 오케스트레이션</h3><p><span class="chip a">Claude API</span> &nbsp;자연어 파싱 → 쿼리 변환 → 결과 요약. 인터페이스 뒤에 둔다.</p></div>
+      <div class="rail b"><h3>저장</h3><p><span class="chip b">PostgreSQL</span> &nbsp;질의 이력, 집계 결과, 요약 로그. 이 도구가 쓰기를 하는 <b>유일한</b> 대상이다.</p></div>
+      <div class="rail b"><h3>API · 시각화 · 배포</h3><p><span class="chip b">REST</span> <span class="chip b">Grafana</span> <span class="chip b">EKS</span> &nbsp;요약과 근거를 함께 반환하는 응답 계약, 대시보드 연동, 컨테이너 배포.</p></div>
+    </div>
+    <div style="flex:1;display:flex;flex-direction:column;gap:1.2cqw">
+      <div class="note" style="flex:1;justify-content:center">
+        <div class="lab">CORE RULE</div>
+        <strong>LLM은 인터페이스 뒤에 있다.</strong>
+        <p>도메인 로직에 Claude API 호출을 직접 박지 않는다. 근거는 두 가지다.</p>
+        <p><b style="color:var(--trace)">01</b> &nbsp;기획서에 EXAONE 병행 가능성이 열려 있다.</p>
+        <p><b style="color:var(--trace)">02</b> &nbsp;더 중요하게는, <b style="color:#DCE5EE">LLM 없이 테스트할 수 없는 코드는 수치 측정이 불가능하다.</b> 측정을 요구하는 이 프로젝트에서 DIP는 취향이 아니라 전제다.</p>
+      </div>
+      <div class="rail m">
+        <h3 style="font-size:1.15cqw">쓰기가 나가는 곳은 하나뿐</h3>
+        <p style="font-size:.9cqw">PostgreSQL. 외부 관측 스택 어디에도 쓰지 않는다.</p>
+      </div>
+    </div>
+  </div>
+  <div class="pgno">15</div>
+</section>
+
+<!-- 16 코드 레이어 ───────────────────────────────────────── -->
+<section class="slide">
+  <div class="eyebrow">03 <span class="sl">/</span> CODE BOUNDARIES</div>
+  <h2>코드 레이어 책임 경계</h2>
+  <p class="sub">의존 방향은 단방향이다. 역방향 참조는 금지한다.</p>
+  <div class="body">
+    <div class="tblwrap">
+      <table class="tbl dense" style="font-size:.98cqw">
+        <thead>
+          <tr><th style="width:16%">레이어</th><th style="width:26%">책임</th><th style="width:29%">하지 말 것</th><th style="width:29%">그렇게 정한 이유</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="k">Controller</td><td class="dim">HTTP 요청/응답, 입력 검증, DTO 변환</td><td class="warn">비즈니스 로직, Repository 직접 호출</td><td class="dim">HTTP 계약이 도메인 규칙을 침범하면 테스트가 서블릿에 묶인다</td></tr>
+          <tr><td class="k">Service</td><td class="dim">비즈니스 로직, 트랜잭션 경계</td><td class="warn">HTTP · 서블릿 타입 의존</td><td class="dim">요약 로직은 HTTP 없이 단위 테스트할 수 있어야 측정이 성립한다</td></tr>
+          <tr><td class="k">Repository</td><td class="dim">영속성 접근</td><td class="warn">비즈니스 판단</td><td class="dim">저장 방식 교체가 도메인 규칙 변경으로 번지지 않게</td></tr>
+          <tr><td class="k">Entity</td><td class="dim">도메인 상태</td><td class="warn">API 응답으로 직접 노출</td><td class="dim">지연 로딩·순환 참조 문제, 그리고 내부 스키마가 API 계약에 묶인다</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="grid g2">
+      <div class="card top b">
+        <span class="lab b">명명 규칙</span>
+        <h3>이름만 보고 역할을 알 수 있어야 한다</h3>
+        <p>레이어 접미사를 강제한다 — <span class="mono">~Controller</span> · <span class="mono">~Service</span> · <span class="mono">~Repository</span> · <span class="mono">~Request</span> / <span class="mono">~Response</span></p>
+        <p style="color:var(--acc1)">금지 — <span class="mono">Util</span> · <span class="mono">Manager</span> · <span class="mono">Helper</span> · <span class="mono">Common</span>. 아무 내용도 담지 않는 이름은 무엇이든 담게 된다.</p>
+      </div>
+      <div class="card top">
+        <span class="lab a">중복 처리 기준</span>
+        <h3>두 번째 쓸 때 공통화한다</h3>
+        <p>동시에 반대 방향 제약도 둔다 — <b>우연히 모양만 같은 코드는 합치지 않는다.</b> 바뀌는 이유가 다르면 남겨둔다.</p>
+        <p style="color:var(--dim)">중복 제거를 무조건 밀면 바뀌는 이유가 다른 코드가 한 덩어리로 묶여 나중에 더 큰 비용이 된다.</p>
+      </div>
+    </div>
+  </div>
+  <div class="foot">패키지 물리 배치(도메인별 vs 계층별)는 <b style="color:var(--acc1)">미결</b>이다. 첫 도메인 코드를 쓰는 시점에 정하고 기록한다 — 추측으로 채우지 않는다.</div>
+  <div class="pgno">16</div>
+</section>
+
+<!-- 17 시나리오 A ────────────────────────────────────────── -->
+<section class="slide dark">
+  <div class="eyebrow">03 <span class="sl">/</span> FLOW A</div>
+  <h2>"지난 1시간 API 응답시간 어땠어?"</h2>
+  <p class="sub">평시 자연어 질의. 이 흐름의 핵심은 생성과 실행 사이에 <b style="color:#E7EDF4">검증</b>이 끼어 있다는 것이다.</p>
+  <div class="body">
+    <div class="seq">
+      <div class="seq-head" style="grid-template-columns:repeat(5,1fr)">
+        <span>운영자</span><span class="a">Controller</span><span class="a">QueryService</span><span class="b">Prometheus</span><span class="b">Claude API</span>
+      </div>
+      <div class="seq-body">
+        <div class="seq-lines" style="grid-template-columns:repeat(5,1fr)"><i></i><i></i><i></i><i></i><i></i></div>
+        <div class="seq-row" style="grid-template-columns:repeat(5,1fr)"><span class="msg" style="grid-column:1/3">"지난 1시간 API 응답시간 어땠어?"</span></div>
+        <div class="seq-row" style="grid-template-columns:repeat(5,1fr)"><span class="msg" style="grid-column:2/4">질의 위임 (입력 검증 후)</span></div>
+        <div class="seq-row" style="grid-template-columns:repeat(5,1fr)"><span class="msg" style="grid-column:3/6">의도 파싱 · PromQL 초안 요청</span></div>
+        <div class="seq-row" style="grid-template-columns:repeat(5,1fr)"><span class="msg rev" style="grid-column:3/6">PromQL 초안</span></div>
+        <div class="seq-row" style="grid-template-columns:repeat(5,1fr)"><span class="msg self" style="grid-column:3/5"><span class="em">[검증]</span> 문법 · 메트릭 존재 · 기간 범위 — 실패 시 실행하지 않고 사용자에게 노출</span></div>
+        <div class="seq-row" style="grid-template-columns:repeat(5,1fr)"><span class="msg" style="grid-column:3/5">검증 통과 쿼리 실행 <span class="em">(읽기 전용)</span></span></div>
+        <div class="seq-row" style="grid-template-columns:repeat(5,1fr)"><span class="msg rev" style="grid-column:3/5">시계열 반환</span></div>
+        <div class="seq-row" style="grid-template-columns:repeat(5,1fr)"><span class="msg" style="grid-column:3/6">시계열 요약 요청</span></div>
+        <div class="seq-row" style="grid-template-columns:repeat(5,1fr)"><span class="msg rev" style="grid-column:3/6">요약문</span></div>
+        <div class="seq-row" style="grid-template-columns:repeat(5,1fr)"><span class="msg rev" style="grid-column:1/3">응답 = 요약 + <span class="em">변환된 쿼리</span> + 원본 시계열</span></div>
+      </div>
+    </div>
+    <div class="note warm">
+      <div class="lab">이 흐름에서 지키는 것</div>
+      <strong>변환된 쿼리를 반드시 사용자에게 노출한다.</strong>
+      <p>자연어 → PromQL 변환은 틀릴 수 있다. 틀린 변환을 <b>사용자가 발견할 수 있어야</b> 이 도구가 신뢰를 잃지 않는다. 쿼리를 감추면 잘못된 그래프를 옳은 답으로 오인하게 된다. 캐시는 이 지점(동일 질의 패턴)에 붙는다.</p>
+    </div>
+  </div>
+  <div class="pgno">17</div>
+</section>
+
+<!-- 18 시나리오 B ────────────────────────────────────────── -->
+<section class="slide dark">
+  <div class="eyebrow">03 <span class="sl">/</span> FLOW B</div>
+  <h2>장애 감지 시 자동 요약</h2>
+  <p class="sub">알람이 입력이고 요약이 출력이다. 그 사이 어디에서도 시스템 상태를 바꾸지 않는다.</p>
+  <div class="body">
+    <div class="seq">
+      <div class="seq-head" style="grid-template-columns:repeat(6,1fr)">
+        <span class="b">Prometheus</span><span class="a">알람 수신</span><span class="a">수집 · 정규화</span><span class="b">Elasticsearch</span><span class="b">Claude API</span><span class="a">대시보드</span>
+      </div>
+      <div class="seq-body">
+        <div class="seq-lines" style="grid-template-columns:repeat(6,1fr)"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        <div class="seq-row" style="grid-template-columns:repeat(6,1fr)"><span class="msg" style="grid-column:1/3">알람 규칙 트리거 (5xx 비율 급증)</span></div>
+        <div class="seq-row" style="grid-template-columns:repeat(6,1fr)"><span class="msg" style="grid-column:2/4">배치 잡 트리거 <span class="em">(수 분 주기 · 동기 호출 아님)</span></span></div>
+        <div class="seq-row" style="grid-template-columns:repeat(6,1fr)"><span class="msg rev" style="grid-column:1/4">알람 시점 전후 구간 메트릭 조회</span></div>
+        <div class="seq-row" style="grid-template-columns:repeat(6,1fr)"><span class="msg" style="grid-column:3/5">같은 구간 로그 조회</span></div>
+        <div class="seq-row" style="grid-template-columns:repeat(6,1fr)"><span class="msg self" style="grid-column:3/5"><span class="em">[정규화]</span> 두 원천을 하나의 시간축에 정렬 · 토큰 예산 안으로 축약</span></div>
+        <div class="seq-row" style="grid-template-columns:repeat(6,1fr)"><span class="msg" style="grid-column:3/6">원인 후보 요약 요청</span></div>
+        <div class="seq-row" style="grid-template-columns:repeat(6,1fr)"><span class="msg rev" style="grid-column:3/6">후보 2~3개 + 확신도</span></div>
+        <div class="seq-row" style="grid-template-columns:repeat(6,1fr)"><span class="msg" style="grid-column:3/7">요약 + 근거 원본 <span class="em">동시</span> 게시</span></div>
+        <div class="seq-row" style="grid-template-columns:repeat(6,1fr)"><span class="msg self" style="grid-column:6/7"><span class="em">[판단]</span> 담당자가 최종 결정</span></div>
+      </div>
+    </div>
+    <div class="grid g2">
+      <div class="rail b"><h3>지연은 결함이 아니라 선택이다</h3><p>알람과 요약 사이에 수 분의 간격이 있다. 초 단위로 당기면 호출 비용과 지연이 선형으로 늘고, 알람 폭주 시 요약이 오히려 늦어진다. 주기값은 <b>조정 예정</b> — 실측 후 확정한다.</p></div>
+      <div class="rail"><h3>정규화가 이 흐름의 실제 난도다</h3><p>메트릭과 로그는 시간 해상도도 형식도 다르다. 둘을 하나의 시간축에 정렬하고 토큰 예산 안으로 줄이면서 <b>신호를 버리지 않는 것</b>이 요약 품질을 좌우한다. LLM 프롬프트보다 여기가 먼저다.</p></div>
+    </div>
+  </div>
+  <div class="pgno">18</div>
+</section>
+
+<!-- 19 실패 모드 ─────────────────────────────────────────── -->
+<section class="slide dark">
+  <div class="eyebrow">03 <span class="sl">/</span> FAILURE MODES</div>
+  <h2>실패 모드와 복구 전략</h2>
+  <p class="sub">외부 의존이 다섯 개인 시스템에서는 정상 경로보다 실패 경로 설계가 품질을 결정한다.</p>
+  <div class="body">
+    <div class="grid g3">
+      <div class="card top">
+        <span class="lab a">Prometheus 조회 실패</span>
+        <h3>로그만으로 응답한다</h3>
+        <p>메트릭 근거가 없다는 사실을 응답에 <b>명시</b>한다. 부분 실패를 감춘 요약은 금지 — 사용자가 근거의 완전성을 오인한다.</p>
+      </div>
+      <div class="card top">
+        <span class="lab a">Elasticsearch 다운</span>
+        <h3>메트릭만으로 응답한다</h3>
+        <p>같은 원칙. 확신도는 자동으로 한 단계 낮춘다 — 근거가 절반이면 확신도 산정도 절반이어야 한다.</p>
+      </div>
+      <div class="card top">
+        <span class="lab a">LLM 타임아웃 · 한도 초과</span>
+        <h3>요약 없이 원본만 반환한다</h3>
+        <p>도구는 조회 도구로 강등되지만 죽지 않는다. 수집된 데이터는 이미 확보돼 있으므로 재수집 없이 재요약만 시도한다.</p>
+      </div>
+      <div class="card top b">
+        <span class="lab b">잘못된 쿼리 변환</span>
+        <h3>실행 전 검증에서 차단</h3>
+        <p>검증 실패 시 실행하지 않고 변환 결과를 그대로 노출한 뒤 재질의를 유도한다. 틀린 쿼리를 조용히 실행하는 것이 최악이다.</p>
+      </div>
+      <div class="card top b">
+        <span class="lab b">Kafka 컨슈머 지연</span>
+        <h3>다음 주기로 이월</h3>
+        <p>배치 주기 내에 도착하지 못한 이벤트는 다음 주기에 포함한다. 처리 지연을 지표로 계측한다.</p>
+      </div>
+      <div class="card top b">
+        <span class="lab b">환각 수치</span>
+        <h3>수집 데이터와 대조</h3>
+        <p>요약에 등장한 숫자가 수집된 원본에 존재하지 않으면 경고 플래그를 붙인다. 근거 병기 구조가 이 검사를 가능하게 만든다.</p>
+      </div>
+    </div>
+    <div class="note warm">
+      <div class="lab">공통 원칙</div>
+      <strong>외부 시스템 하나가 죽어도 나머지 기능은 동작한다. 그리고 무엇이 빠졌는지 응답에 적는다.</strong>
+      <p>두 번째 문장이 없으면 첫 번째 문장은 위험해진다. 반쪽 근거로 만든 요약을 온전한 것처럼 내보내는 순간, 이 도구는 안전장치가 없는 도구가 된다.</p>
+    </div>
+  </div>
+  <div class="pgno">19</div>
+</section>
+
+<!-- 20 설계 결정 인덱스 ──────────────────────────────────── -->
+<section class="slide">
+  <div class="eyebrow">03 <span class="sl">/</span> DECISION INDEX</div>
+  <h2>설계 결정 인덱스</h2>
+  <div class="body">
+    <div class="tblwrap">
+      <table class="tbl dense">
+        <thead><tr><th style="width:8%">ID</th><th style="width:46%">결정</th><th style="width:13%">영역</th><th style="width:15%">적용 시점</th><th style="width:18%">상태</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">D-01</td><td>Controller / Service / Repository / Entity 4계층으로 분리한다</td><td class="dim">구조</td><td class="mono dim">전 Phase</td><td><span class="badge b-fix">확정</span></td></tr>
+          <tr><td class="mono">D-02</td><td>Entity를 Controller 밖으로 내보내지 않는다 (DTO 경유)</td><td class="dim">구조</td><td class="mono dim">전 Phase</td><td><span class="badge b-fix">확정</span></td></tr>
+          <tr><td class="mono">D-03</td><td>LLM · 데이터 소스는 인터페이스 뒤에 둔다</td><td class="dim">구조</td><td class="mono dim">P1</td><td><span class="badge b-fix">확정</span></td></tr>
+          <tr><td class="mono">D-04</td><td>프롬프트 구성 / API 호출 / 응답 파싱을 분리한다</td><td class="dim">구조</td><td class="mono dim">P1</td><td><span class="badge b-fix">확정</span></td></tr>
+          <tr><td class="mono">D-05</td><td>LLM 요약을 근거 없이 반환하지 않는다</td><td class="dim">안전</td><td class="mono dim">P1 · P3</td><td><span class="badge b-fix">확정</span></td></tr>
+          <tr><td class="mono">D-06</td><td>원인은 가설형 + 확신도로 표현한다</td><td class="dim">안전</td><td class="mono dim">P3</td><td><span class="badge b-adj">조정 예정</span></td></tr>
+          <tr><td class="mono">D-07</td><td>자동 조치를 구현하지 않는다 — 읽기 전용</td><td class="dim">안전</td><td class="mono dim">전 Phase</td><td><span class="badge b-fix">확정</span></td></tr>
+          <tr><td class="mono">D-08</td><td>변환 쿼리는 검증 후 실행하고 사용자에게 노출한다</td><td class="dim">안전</td><td class="mono dim">P1 · P2</td><td><span class="badge b-fix">확정</span></td></tr>
+          <tr><td class="mono">D-09</td><td>알람 대응은 수 분 단위 배치로 처리한다</td><td class="dim">제품</td><td class="mono dim">P3</td><td><span class="badge b-adj">조정 예정</span></td></tr>
+          <tr><td class="mono">D-10</td><td>설정 파일은 <span class="mono">application.yml</span> 하나로 고정한다</td><td class="dim">운영</td><td class="mono dim">완료</td><td><span class="badge b-fix">확정</span></td></tr>
+          <tr><td class="mono">D-11</td><td>비밀값은 <span class="mono">${ENV}</span> 플레이스홀더 + <span class="mono">.env</span> 주입</td><td class="dim">운영</td><td class="mono dim">완료</td><td><span class="badge b-fix">확정</span></td></tr>
+          <tr><td class="mono">D-12</td><td>부팅 시 배치 잡 자동 실행을 차단한다</td><td class="dim">운영</td><td class="mono dim">완료</td><td><span class="badge b-fix">확정</span></td></tr>
+          <tr><td class="mono">D-13</td><td>Quartz 잡 스토어는 메모리</td><td class="dim">운영</td><td class="mono dim">P1</td><td><span class="badge b-swap">전환 예정</span></td></tr>
+          <tr><td class="mono">D-14</td><td>패키지 물리 배치 — 도메인별 vs 계층별</td><td class="dim">구조</td><td class="mono dim">첫 도메인 코드</td><td><span class="badge b-open">미결</span></td></tr>
+          <tr><td class="mono">D-15</td><td><span class="mono">elasticsearch.uris</span> 바인딩 클래스 + 클라이언트 빈</td><td class="dim">운영</td><td class="mono dim">P2</td><td><span class="badge b-open">미구현</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="foot">확정 = 변경 예정 없음 &nbsp;·&nbsp; 조정 예정 = 파라미터·범위 수정 예상 &nbsp;·&nbsp; 전환 예정 = 대안 교체가 계획됨 &nbsp;·&nbsp; 미결 = 근거가 모일 때까지 비워둔다</div>
+  <div class="pgno">20</div>
+</section>
+
+<!-- 21 결정 상세 1 ───────────────────────────────────────── -->
+<section class="slide">
+  <div class="eyebrow">03 <span class="sl">/</span> DECISIONS &#183; 1</div>
+  <h2>구조 결정 &nbsp;D&#8209;01 ~ 04</h2>
+  <p class="sub">SOLID를 나열하는 대신, 이 프로젝트에서 실제로 걸리는 지점만 남겼다.</p>
+  <div class="body" style="gap:1cqw">
+    <div class="dec">
+      <span class="id">D-01</span><span class="ti">4계층으로 분리하고 의존 방향을 단방향으로 고정한다</span><span class="st"><span class="badge b-fix">확정</span></span>
+      <span class="why">각 레이어의 "하지 말 것"을 함께 명시해야 경계가 지켜진다. 나열만으로는 위반을 판정할 수 없다.</span>
+      <span class="to"><b class="p">(+)</b> 요약 로직을 HTTP 없이 단위 테스트할 수 있다 &nbsp;<b class="m">(−)</b> DTO 변환 코드가 늘어난다 — 측정 가능성과 맞바꾼 값</span>
+    </div>
+    <div class="dec">
+      <span class="id">D-02</span><span class="ti">Entity를 API 응답으로 직접 노출하지 않는다</span><span class="st"><span class="badge b-fix">확정</span></span>
+      <span class="why">그대로 직렬화하면 지연 로딩·순환 참조 문제가 생기고, 내부 스키마가 API 계약에 묶인다.</span>
+      <span class="to"><b class="p">(+)</b> 스키마 변경이 API 파괴로 번지지 않는다 &nbsp;<b class="m">(−)</b> 매핑 계층 유지 비용</span>
+    </div>
+    <div class="dec warm">
+      <span class="id">D-03</span><span class="ti">LLM · 데이터 소스는 인터페이스 뒤에 둔다 <span class="mono" style="font-size:.85cqw;color:var(--dim)">DIP</span></span><span class="st"><span class="badge b-fix">확정</span></span>
+      <span class="why">Claude API 호출을 도메인 로직에 직접 박지 않는다. 기획서에 EXAONE 병행 가능성이 있고, 무엇보다 <b>LLM 없이 테스트할 수 없는 코드는 수치 측정이 불가능하다.</b></span>
+      <span class="to"><b class="p">(+)</b> 모델 교체 가능 · LLM 없이 도메인 테스트 가능 &nbsp;<b class="m">(−)</b> 추상화 한 겹 &nbsp;— 이 프로젝트는 측정이 목적이므로 비용을 감수한다</span>
+    </div>
+    <div class="dec warm">
+      <span class="id">D-04</span><span class="ti">프롬프트 구성 / API 호출 / 응답 파싱을 한 클래스에 몰지 않는다 <span class="mono" style="font-size:.85cqw;color:var(--dim)">SRP</span></span><span class="st"><span class="badge b-fix">확정</span></span>
+      <span class="why">셋은 바뀌는 이유가 각각 다르다 — 프롬프트는 품질 실험으로, 호출은 SDK·모델 변경으로, 파싱은 응답 스키마 변경으로 바뀐다.</span>
+      <span class="to"><b class="p">(+)</b> 프롬프트 문구를 바꿔가며 측정할 때 나머지를 건드리지 않는다 &nbsp;<b class="m">(−)</b> 클래스 수 증가</span>
+    </div>
+    <div class="quote">LSP · ISP는 넣지 않았다. 현재 상속 구조도 비대한 인터페이스도 없어 걸릴 지점이 없다. 억지로 채우면 판정 불가능한 구호가 된다.</div>
+  </div>
+  <div class="pgno">21</div>
+</section>
+
+<!-- 22 결정 상세 2 ───────────────────────────────────────── -->
+<section class="slide">
+  <div class="eyebrow">03 <span class="sl">/</span> DECISIONS &#183; 2</div>
+  <h2>안전장치 결정 &nbsp;D&#8209;05 ~ 09</h2>
+  <p class="sub">네 건은 기획서에서 확정된 제약이고, 하나(D&#8209;08)는 리스크 표에서 도출한 것이다.</p>
+  <div class="body" style="gap:.9cqw">
+    <div class="dec warm">
+      <span class="id">D-05</span><span class="ti">LLM 요약을 근거 없이 반환하는 경로를 만들지 않는다</span><span class="st"><span class="badge b-fix">확정</span></span>
+      <span class="why">사용자가 요약을 사실로 오인하는 것이 이 도구의 최대 리스크다. 구조로 막지 않으면 문구로 막을 수 없다.</span>
+      <span class="to"><b>판정</b> — 근거 필드 없는 응답 타입의 존재 자체가 위반. 응답 DTO 설계 시점에 강제된다.</span>
+    </div>
+    <div class="dec warm">
+      <span class="id">D-06</span><span class="ti">원인 후보는 가설형 + 확신도(높음/중간/낮음)로 표현한다</span><span class="st"><span class="badge b-adj">조정 예정</span></span>
+      <span class="why">3단계는 확정. 각 단계의 <b>판정 정의</b>는 제안 상태이며 채점 결과를 보고 조정한다.</span>
+      <span class="to"><b>재검토 조건</b> — "중간"이 전체의 대부분을 차지하면 단계 구분이 정보를 주지 못하는 것이므로 기준을 다시 나눈다.</span>
+    </div>
+    <div class="dec warm">
+      <span class="id">D-07</span><span class="ti">자동 조치를 구현하지 않는다 — 이 도구는 읽기 전용이다</span><span class="st"><span class="badge b-fix">확정</span></span>
+      <span class="why">오판 시 리스크가 회수 불가능하다. 이 결정은 "나중에 한다"가 아니라 <b>영구 제외</b>다.</span>
+      <span class="to"><b class="p">(+)</b> 권한 · 실패 모드 · 감사 설계가 통째로 단순해진다 &nbsp;<b class="m">(−)</b> "알아서 고쳐주는" 데모 임팩트를 포기</span>
+    </div>
+    <div class="dec">
+      <span class="id">D-08</span><span class="ti">변환된 쿼리는 검증 후 실행하고, 사용자에게 노출한다</span><span class="st"><span class="badge b-fix">확정</span></span>
+      <span class="why">기획서에 직접 쓰인 문장은 아니고 리스크 표(환각)에서 도출했다. 자연어→쿼리 변환은 틀릴 수 있고, 틀린 쿼리의 결과는 <b>그럴듯한 그래프</b>로 나타나 발견되지 않는다.</span>
+      <span class="to"><b>검증 항목</b> — 문법 · 메트릭/필드 존재 여부 · 기간 범위. 실패 시 실행하지 않고 변환 결과를 노출한다.</span>
+    </div>
+    <div class="dec">
+      <span class="id">D-09</span><span class="ti">알람 대응은 수 분 단위 배치로 처리한다</span><span class="st"><span class="badge b-adj">조정 예정</span></span>
+      <span class="why">실시간 대응은 비용·지연 문제로 제외. 다만 <b>주기값은 미정</b>이다 — 실측 없이 정하면 근거 없는 숫자가 된다.</span>
+      <span class="to"><b>확정 조건</b> — 요약 응답 시간과 호출당 비용을 측정한 뒤 결정한다 → <b style="color:var(--acc2)">05 측정</b></span>
+    </div>
+  </div>
+  <div class="pgno">22</div>
+</section>
+
+<!-- 23 결정 상세 3 ───────────────────────────────────────── -->
+<section class="slide compact">
+  <div class="eyebrow">03 <span class="sl">/</span> DECISIONS &#183; 3</div>
+  <h2>운영 · 설정 결정 &nbsp;D&#8209;10 ~ 15</h2>
+  <p class="sub">이미 적용된 것과, 아직 비워둔 것.</p>
+  <div class="body" style="gap:.62cqw">
+    <div class="dec">
+      <span class="id">D-10</span><span class="ti">설정 파일은 <span class="mono">application.yml</span> 하나로 고정한다</span><span class="st"><span class="badge b-fix">확정</span></span>
+      <span class="why">Spring Boot는 <span class="mono">.yaml</span>과 <span class="mono">.yml</span>을 모두 로드한다. 둘이 공존하면 설정 출처가 갈라져 "고쳤는데 반영이 안 된다" 유형의 버그를 부른다.</span>
+      <span class="to"><b>적용 완료</b> — Initializr가 만든 <span class="mono">application.yaml</span>을 삭제하고 <span class="mono">application.yml</span>로 대체했다.</span>
+    </div>
+    <div class="dec">
+      <span class="id">D-11</span><span class="ti">비밀값은 <span class="mono">${ENV}</span> 플레이스홀더로 두고 <span class="mono">.env</span>로 주입한다</span><span class="st"><span class="badge b-fix">확정</span></span>
+      <span class="why">세 조각이 하나의 흐름이다 — yml의 플레이스홀더, 값을 담는 <span class="mono">.env</span>, 실행 시 읽는 <span class="mono">launch.json</span>의 <span class="mono">envFile</span>. 하나라도 빠지면 흐름이 끊긴다.</span>
+      <span class="to"><b>남은 일</b> — <span class="mono">.env</span> 실제 생성(<span class="mono">DB_PASSWORD</span>), <span class="mono">.vscode/launch.json</span>의 git 추적 여부 결정</span>
+    </div>
+    <div class="dec">
+      <span class="id">D-12</span><span class="ti"><span class="mono">spring.batch.job.enabled: false</span> — 부팅 시 배치 자동 실행 차단</span><span class="st"><span class="badge b-fix">확정</span></span>
+      <span class="why">잡은 명시적으로 트리거한다. 부팅만으로 LLM 호출이 발생하는 상황을 원천 차단한다 — 비용이 드는 호출이기 때문이다.</span>
+      <span class="to"><b class="p">(+)</b> 로컬 재기동이 비용을 발생시키지 않는다</span>
+    </div>
+    <div class="dec">
+      <span class="id">D-13</span><span class="ti">Quartz 잡 스토어는 메모리</span><span class="st"><span class="badge b-swap">전환 예정</span></span>
+      <span class="why">초기 개발 단계라 JDBC 스토어의 스키마 관리 비용이 이득보다 크다.</span>
+      <span class="to"><b>전환 조건</b> — 재기동 간 스케줄 유지가 필요해지거나 인스턴스가 둘 이상이 될 때 JDBC로 전환</span>
+    </div>
+    <div class="dec" style="border-left-color:var(--dim)">
+      <span class="id" style="color:var(--dim)">D-14</span><span class="ti" style="color:var(--dim)">패키지 물리 배치 — 도메인별 vs 계층별</span><span class="st"><span class="badge b-open">미결</span></span>
+      <span class="why">지금 임의로 정하면 실제 구현과 어긋난 채 문서만 남는다.</span>
+      <span class="to"><b>결정 시점</b> — 첫 도메인 코드를 쓰는 순간. 정하는 즉시 기록한다.</span>
+    </div>
+    <div class="dec" style="border-left-color:var(--dim)">
+      <span class="id" style="color:var(--dim)">D-15</span><span class="ti" style="color:var(--dim)"><span class="mono">elasticsearch.uris</span> — Spring 표준 키가 아닌 커스텀 프로퍼티</span><span class="st"><span class="badge b-open">미구현</span></span>
+      <span class="why">바인딩 클래스와 클라이언트 빈 설정이 없으면 값이 주입되지 않는다.</span>
+      <span class="to"><b>필요 작업</b> — <span class="mono">@ConfigurationProperties</span> 클래스 + <span class="mono">ElasticsearchClient</span> 빈</span>
+    </div>
+  </div>
+  <div class="pgno">23</div>
+</section>
+
+<!-- 24 §04 표지 ──────────────────────────────────────────── -->
+<section class="slide dark divider plain" id="s4">
+  <div class="left">
+    <div class="mark"><i></i><i></i></div>
+    <div class="num">04</div>
+    <h2>검증 전략</h2>
+    <div class="rom">VERIFICATION</div>
+    <div class="lead">
+      혼자 만드는 프로젝트에는 실제 장애가 없다.<br>
+      그래서 장애를 만들어야 데모가 성립한다.
+    </div>
+  </div>
+  <div class="right">
+    <ul>
+      <li>데이터가 없다는 제약</li>
+      <li>부하 생성 · 장애 주입</li>
+      <li>장애 시나리오 카탈로그</li>
+    </ul>
+  </div>
+  <div class="pgno">24</div>
+</section>
+
+<!-- 25 데이터 확보 ───────────────────────────────────────── -->
+<section class="slide">
+  <div class="eyebrow">04 <span class="sl">/</span> DATA</div>
+  <h2>실제 이상 신호를 어떻게 만드는가</h2>
+  <p class="sub">가장 큰 제약은 기술이 아니라 데이터다. 정상 트래픽도 장애 트래픽도 존재하지 않는 상태에서 시작한다.</p>
+  <div class="body">
+    <div class="grid g2">
+      <div class="card top b">
+        <span class="lab b">STEP 01</span>
+        <h3>부하 생성 — 정상 패턴 축적</h3>
+        <p><span class="chip b">k6</span> <span class="chip b">Locust</span> 인위적 트래픽을 발생시켜 평상시 메트릭 분포를 만든다.</p>
+        <p><b style="color:var(--fg)">순서가 중요하다.</b> 정상 패턴이 없으면 "이상"을 정의할 기준선이 없다. 부하 생성이 장애 주입보다 반드시 먼저다.</p>
+      </div>
+      <div class="card top">
+        <span class="lab a">STEP 02</span>
+        <h3>장애 주입 — 이상 신호 생성</h3>
+        <p>예외 발생, 응답 지연 삽입, DB 커넥션 풀 고갈 등을 <b>코드 레벨에서</b> 재현한다.</p>
+        <p>주입한 원인을 우리가 알고 있다는 점이 핵심이다. 이것이 곧 채점용 <b style="color:var(--fg)">정답 라벨</b>이 된다.</p>
+      </div>
+    </div>
+    <div class="note">
+      <div class="lab">부수 효과</div>
+      <strong>이 과정 자체가 포트폴리오의 근거 자료가 된다.</strong>
+      <p>"실제 장애 없이 어떻게 검증했는가"는 면접에서 반드시 나오는 질문이다. 장애 주입 시나리오와 그 결과 채점표가 답변이 된다. 검증 수단을 만드는 일이 검증 결과만큼 보여줄 것이 있다.</p>
+    </div>
+    <div class="quote">
+      주의 — 주입한 장애는 실제 장애보다 <b>깨끗하다</b>. 신호가 명확하고 노이즈가 적다. 여기서 얻은 적중률은 상한값으로 읽어야 하며, 그대로 실환경 성능이라고 주장하지 않는다.
+    </div>
+  </div>
+  <div class="pgno">25</div>
+</section>
+
+<!-- 26 시나리오 카탈로그 ─────────────────────────────────── -->
+<section class="slide dark">
+  <div class="eyebrow">04 <span class="sl">/</span> SCENARIOS</div>
+  <h2>장애 시나리오 카탈로그</h2>
+  <p class="sub">각 시나리오는 주입 방법 · 나타나야 할 신호 · 정답을 함께 정의한다. 정답이 없으면 채점할 수 없다.</p>
+  <div class="body">
+    <div class="tblwrap">
+      <table class="tbl" style="font-size:.96cqw">
+        <thead><tr><th style="width:7%">ID</th><th style="width:20%">시나리오</th><th style="width:24%">주입 방법</th><th style="width:29%">나타나야 할 신호</th><th style="width:20%">정답 라벨</th></tr></thead>
+        <tbody>
+          <tr>
+            <td class="mono">S-1</td><td class="k">DB 커넥션 풀 고갈</td>
+            <td class="dim">풀 크기를 줄이고 동시 요청 수를 올린다</td>
+            <td class="dim">응답시간 p95 급증 · 커넥션 획득 대기 증가 · 로그에 pool timeout 반복</td>
+            <td style="color:var(--acc2)">커넥션 풀</td>
+          </tr>
+          <tr>
+            <td class="mono">S-2</td><td class="k">외부 의존 지연 전파</td>
+            <td class="dim">호출하는 외부 API 응답에 인위적 지연을 삽입한다</td>
+            <td class="dim">해당 의존을 쓰는 엔드포인트만 지연 · 스레드 점유 증가 · 다른 경로는 정상</td>
+            <td style="color:var(--acc2)">외부 의존</td>
+          </tr>
+          <tr>
+            <td class="mono">S-3</td><td class="k">예외 급증 (5xx)</td>
+            <td class="dim">특정 경로에 예외를 주입한다</td>
+            <td class="dim">5xx 비율 급증 · 동일 스택트레이스가 로그에 반복 · 특정 경로에 집중</td>
+            <td style="color:var(--acc2)">코드 결함 · 배포</td>
+          </tr>
+          <tr>
+            <td class="mono">S-4</td><td class="k">메모리 압박</td>
+            <td class="dim">해제되지 않는 참조를 만들어 힙 점유를 늘린다</td>
+            <td class="dim">GC 시간 증가 · 응답시간이 톱니 형태로 반복 상승 · 특정 경로에 국한되지 않음</td>
+            <td style="color:var(--acc2)">메모리</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="grid g2">
+      <div class="rail b"><h3>왜 네 개인가</h3><p>기획서 성공 기준은 "2~3개 이상"이다. 넷으로 잡은 이유는 <b>혼동 쌍</b>을 만들기 위해서다 — S-1과 S-2는 둘 다 지연으로 나타나고, S-3과 S-4는 둘 다 오류율을 올린다. 구분하지 못하면 그 사실이 측정된다.</p></div>
+      <div class="rail"><h3>채점 방식</h3><p>요약이 제시한 후보 목록에 정답 라벨이 포함됐는지, 몇 번째 순위였는지, 확신도가 적절했는지를 함께 본다. <b>정답을 1순위로 맞히는 것</b>과 <b>후보에 넣기라도 하는 것</b>은 다른 성과이므로 나눠 기록한다.</p></div>
+    </div>
+  </div>
+  <div class="pgno">26</div>
+</section>
+
+<!-- 27 §05 표지 ──────────────────────────────────────────── -->
+<section class="slide dark divider plain" id="s5">
+  <div class="left">
+    <div class="mark"><i></i><i></i></div>
+    <div class="num">05</div>
+    <h2>측정</h2>
+    <div class="rom">MEASUREMENT</div>
+    <div class="lead">
+      "만들었다"가 아니라<br>
+      "얼마나 개선했는가"를 숫자로 말할 수 있어야 한다.
+    </div>
+  </div>
+  <div class="right">
+    <ul>
+      <li>측정 항목과 현황</li>
+      <li>기록 규칙</li>
+      <li>선결 과제 — 채점 기준</li>
+    </ul>
+  </div>
+  <div class="pgno">27</div>
+</section>
+
+<!-- 28 측정 항목 ─────────────────────────────────────────── -->
+<section class="slide">
+  <div class="eyebrow">05 <span class="sl">/</span> PLAN</div>
+  <h2>측정 항목과 기록 규칙</h2>
+  <p class="sub">현재 기록된 측정값은 0건이다. 이 표는 성과가 아니라 <b>앞으로 채울 자리</b>를 정의한다.</p>
+  <div class="body" style="flex-direction:row;gap:2.4cqw">
+    <div style="flex:1.35">
+      <div class="colhead b">측정 항목</div>
+      <table class="tbl" style="font-size:.98cqw">
+        <thead><tr><th style="width:38%">항목</th><th style="width:34%">지표</th><th style="width:28%">현황</th></tr></thead>
+        <tbody>
+          <tr><td class="k">자연어 → PromQL 변환</td><td class="dim">성공률 (수동 평가)</td><td class="warn">채점 기준표 미작성</td></tr>
+          <tr><td class="k">자연어 → ES 쿼리 변환</td><td class="dim">성공률 (수동 평가)</td><td class="warn">미착수</td></tr>
+          <tr><td class="k">LLM 요약</td><td class="dim">응답 시간 · 호출당 토큰 · 비용</td><td class="warn">미착수</td></tr>
+          <tr><td class="k">캐싱</td><td class="dim">적용 전후 호출 횟수 · 응답 시간</td><td class="warn">미착수</td></tr>
+          <tr><td class="k">장애 시나리오</td><td class="dim">원인 후보 적중 · 순위 · 확신도 적절성</td><td class="warn">시나리오 정의됨 · 미측정</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="flex:1;display:flex;flex-direction:column;gap:1.1cqw">
+      <div class="colhead a" style="margin-bottom:0">기록 규칙</div>
+      <ul class="list a">
+        <li><b>조건 없는 수치는 기록하지 않는다.</b> 입력 규모 · 환경 · 커밋 해시를 함께 적는다. 재현할 수 없으면 비교할 수 없다.</li>
+        <li><b>실패·미개선 결과도 저장한다.</b> 당장 자랑할 숫자가 아니어도 baseline으로 쓰인다.</li>
+        <li><b>정성 표현만 남기지 않는다.</b> "빨라졌다"가 아니라 무엇이 얼마에서 얼마로 바뀌었는지 적는다.</li>
+        <li><b>직전 값 대비 변화를 함께 적는다.</b></li>
+      </ul>
+      <div class="rail m" style="margin-top:auto">
+        <h3 style="font-size:1.12cqw">기록 위치</h3>
+        <p style="font-size:.9cqw">전용 노트로 분리했다. 작업 로그에 섞으면 시간순으로 흩어져 baseline 비교가 불가능해진다.</p>
+        <p class="mono" style="font-size:.85cqw;color:var(--acc2)">observe-copilot - 측정 기록.md</p>
+      </div>
+    </div>
+  </div>
+  <div class="foot">기록 항목: 측정 일시 / 대상 / 조건(입력 · 데이터 규모 · 환경 · 커밋) / 결과 수치 / 직전 대비 변화 / 해석 / 다음 조치</div>
+  <div class="pgno">28</div>
+</section>
+
+<!-- 29 선결 과제 ─────────────────────────────────────────── -->
+<section class="slide">
+  <div class="eyebrow">05 <span class="sl">/</span> BLOCKER</div>
+  <h2>선결 과제 — 무엇을 '성공'으로 볼 것인가</h2>
+  <p class="sub">1순위 지표인 변환 성공률을 재려면, 재는 자를 먼저 만들어야 한다. 기획서에도 "수동 평가 기준 마련 필요"로 남아 있는 항목이다.</p>
+  <div class="body">
+    <div class="grid g4">
+      <div class="card top b">
+        <span class="lab b">등급 A</span><h3>완전 일치</h3>
+        <p>실행 결과가 정답 쿼리와 동일하다.</p>
+      </div>
+      <div class="card top b">
+        <span class="lab b">등급 B</span><h3>의미 일치</h3>
+        <p>표현은 다르지만 같은 결론에 도달한다. 예 — <span class="mono">rate()</span> 윈도가 허용 범위 안에서 다름.</p>
+      </div>
+      <div class="card top" style="border-top-color:var(--amber)">
+        <span class="lab" style="color:var(--amber)">등급 C</span><h3>부분 실패</h3>
+        <p>메트릭명은 맞으나 필터 · 기간 · 집계 함수가 틀렸다. 사용자가 쿼리를 보면 고칠 수 있는 수준.</p>
+      </div>
+      <div class="card top">
+        <span class="lab a">등급 D</span><h3>실패</h3>
+        <p>실행 불가이거나 전혀 다른 대상을 조회한다.</p>
+      </div>
+    </div>
+    <div class="grid g2">
+      <div class="note warm" style="flex:1">
+        <div class="lab">먼저 만들어야 하는 것</div>
+        <strong>정답 쌍이 붙은 질의 세트.</strong>
+        <p>자연어 질의와 그에 대응하는 정답 쿼리를 짝지어 고정해야 한다. 이 세트가 없으면 첫 baseline 측정 자체가 성립하지 않고, 이후 프롬프트를 바꿨을 때 <b>개선을 주장할 근거</b>가 없다.</p>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:1cqw">
+        <div class="rail b"><h3>왜 등급을 넷으로 나누는가</h3><p>성공/실패 2분법은 <b>C를 D로 만든다</b>. 실제로는 C가 가장 많이 나올 구간이고, 개선 여지가 어디 있는지도 C의 비율이 알려준다.</p></div>
+        <div class="rail m"><h3>이 등급표의 상태</h3><p><span class="badge b-adj">제안</span> 첫 채점을 해보고 조정한다. 등급 정의도 측정 대상이다.</p></div>
+      </div>
+    </div>
+  </div>
+  <div class="foot">기획서 원문: "자연어 질의 → 정확한 쿼리 변환 성공률 (수동 평가 기준 마련 필요)" — 이 문서가 그 기준의 초안이다</div>
+  <div class="pgno">29</div>
+</section>
+
+<!-- 30 §06 표지 ──────────────────────────────────────────── -->
+<section class="slide dark divider plain" id="s6">
+  <div class="left">
+    <div class="mark"><i></i><i></i></div>
+    <div class="num">06</div>
+    <h2>로드맵</h2>
+    <div class="rom">ROADMAP</div>
+    <div class="lead">
+      Phase 1에서 막히면 이후 단계로 넘어갈 이유가 없다.<br>
+      순서 자체가 리스크 관리다.
+    </div>
+  </div>
+  <div class="right">
+    <ul>
+      <li>Phase 1&#8209;4 마일스톤</li>
+      <li>현재 상태</li>
+      <li>다음 액션</li>
+    </ul>
+  </div>
+  <div class="pgno">30</div>
+</section>
+
+<!-- 31 마일스톤 ──────────────────────────────────────────── -->
+<section class="slide">
+  <div class="eyebrow">06 <span class="sl">/</span> MILESTONES</div>
+  <h2>Phase 1 &#8209; 4 마일스톤</h2>
+  <p class="sub">각 Phase는 앞 단계의 결과를 전제로 한다. 건너뛰면 뒤 단계의 측정이 무의미해진다.</p>
+  <div class="body" style="gap:1cqw">
+    <div class="mile now">
+      <span class="ph">Phase 1</span>
+      <h3>Prometheus 연동 + 자연어 메트릭 질의</h3>
+      <span class="out">PromQL 변환기 · 쿼리 검증 · 기본 대시보드</span>
+      <span class="stt"><span class="badge b-swap">착수 예정</span></span>
+    </div>
+    <div class="mile">
+      <span class="ph b">Phase 2</span>
+      <h3>Elasticsearch 연동 + 자연어 로그 질의</h3>
+      <span class="out">로그 검색 API · ES 클라이언트 설정</span>
+      <span class="stt"><span class="badge b-open">대기</span></span>
+    </div>
+    <div class="mile">
+      <span class="ph b">Phase 3</span>
+      <h3>알람 트리거 → 자동 근본원인 요약</h3>
+      <span class="out">배치 잡 + LLM 요약 파이프라인 · 근거 병기 응답</span>
+      <span class="stt"><span class="badge b-open">대기</span></span>
+    </div>
+    <div class="mile">
+      <span class="ph b">Phase 4</span>
+      <h3>정확도 검증 및 피드백 루프</h3>
+      <span class="out">채점표 · 시나리오 적중률 · 피드백 반영 구조</span>
+      <span class="stt"><span class="badge b-open">대기</span></span>
+    </div>
+    <div class="note warm">
+      <div class="lab">GATE</div>
+      <strong>Phase 1에서 변환 정확도가 나오지 않으면 이후 단계로 넘어갈 이유가 없다.</strong>
+      <p>로그 연동도 자동 요약도 "자연어를 쿼리로 바꾼다"는 같은 능력 위에 서 있다. 여기서 막힌 채 범위를 넓히면 실패 원인이 뒤섞여 어디가 문제인지 알 수 없게 된다. Phase 1의 종료 조건은 기능 완성이 아니라 <b>첫 baseline 측정치의 존재</b>다.</p>
+    </div>
+  </div>
+  <div class="pgno">31</div>
+</section>
+
+<!-- 32 현재 상태 ─────────────────────────────────────────── -->
+<section class="slide">
+  <div class="eyebrow">06 <span class="sl">/</span> STATUS</div>
+  <h2>현재 상태와 다음 액션</h2>
+  <p class="sub">초기 설정과 관측 스택 로컬 기동까지 완료됐다. 도메인 코드는 아직 한 줄도 없다.</p>
+  <div class="body" style="flex-direction:row;gap:2.2cqw">
+    <div style="flex:1">
+      <div class="colhead b">완료</div>
+      <ul class="list ok">
+        <li><b>설정 단일화</b> — <span class="mono">application.yml</span> 하나로 고정</li>
+        <li><b>비밀값 주입 흐름</b> — <span class="mono">${DB_PASSWORD}</span> 플레이스홀더 + <span class="mono">.gitignore</span> + <span class="mono">envFile</span> + <span class="mono">.env</span> / <span class="mono">.env.example</span></li>
+        <li><b>배치 자동 실행 차단</b> — <span class="mono">spring.batch.job.enabled: false</span></li>
+        <li><b>설계 원칙 문서화</b> — <span class="mono">CLAUDE.md</span>에 판정 가능한 형태로</li>
+        <li><b>측정 기록 노트 신설</b> — 템플릿과 기록 규칙 확정</li>
+        <li><b>관측 스택 로컬 기동</b> — Compose로 postgres · prometheus · grafana. 데이터소스 프로비저닝 자동 등록, 첫 PromQL <span class="mono">up</span> 실행 확인</li>
+      </ul>
+    </div>
+    <div style="flex:1">
+      <div class="colhead a">미결 · 대기</div>
+      <ul class="list a">
+        <li>앱 스크레이프 설정 — <span class="mono">prometheus.yml</span>에 써두고 주석 처리. Actuator 추가 후 해제</li>
+        <li><span class="mono">.vscode/launch.json</span> git 추적 여부 — 기존 <span class="mono">.gitignore</span> 정책과 충돌, 사용자 판단 대기</li>
+        <li><span class="mono">elasticsearch.uris</span> 바인딩 클래스 + 클라이언트 빈 <span class="mono">(D-15)</span></li>
+        <li>패키지 물리 배치 결정 <span class="mono">(D-14)</span></li>
+        <li>배치 주기값 확정 <span class="mono">(D-09)</span> — 실측 후</li>
+      </ul>
+    </div>
+    <div style="flex:1.05;display:flex;flex-direction:column;gap:.9cqw">
+      <div class="colhead" style="color:var(--fg);margin-bottom:0">다음 액션</div>
+      <div class="rail b"><h3>1. Prometheus · Grafana 직접 다뤄보기</h3><p>PromQL을 UI에서 입력하고 첫 패널을 만든다. 실제 수집되는 메트릭을 봐야 채점 기준표를 쓸 수 있다.</p></div>
+      <div class="rail b"><h3>2. 앱 메트릭 노출</h3><p>Actuator + micrometer-registry-prometheus → <span class="mono">prometheus.yml</span> 주석 해제.</p></div>
+      <div class="rail"><h3>3. PromQL 채점 기준표 + 정답 세트</h3><p>Phase 1 측정의 선결 조건. 이것 없이 코드를 먼저 쓰면 개선을 주장할 baseline이 없다.</p></div>
+      <div class="rail m"><h3>4. Phase 1 착수 · 부하 생성 환경</h3><p>첫 도메인 코드 시점에 D-14 확정. 부하 생성은 장애 주입보다 먼저.</p></div>
+    </div>
+  </div>
+  <div class="foot">기록 위치 — 작업 로그: <span class="mono">observe-copilot - 작업 로그.md</span> &nbsp;·&nbsp; 측정: <span class="mono">observe-copilot - 측정 기록.md</span> &nbsp;·&nbsp; 코드 규칙: <span class="mono">CLAUDE.md</span></div>
+  <div class="pgno">32</div>
+</section>
+
+<!-- 33 마무리 ────────────────────────────────────────────── -->
+<section class="slide dark cover">
+  <div class="mark"><i></i><i></i></div>
+  <h1 style="font-size:6.4cqw">observe&#8209;copilot</h1>
+  <div class="tag" style="font-size:1.7cqw">원인을 확정하지 않는다. 후보를 좁힌다.</div>
+  <hr>
+  <dl class="endgrid">
+    <dt>도메인</dt><dd>관측성 · 장애 1차 트리아지 (내부 도구)</dd>
+    <dt>스택</dt><dd>Spring Boot · PostgreSQL · Elasticsearch · Kafka · Spring Batch + Quartz · Claude API · EKS</dd>
+    <dt>초점</dt><dd>LLM 출력 안전장치 · 쿼리 검증 · 근거 병기 · 수치 측정</dd>
+    <dt>현황</dt><dd>초기 설정 완료 · 도메인 코드 없음 · Phase 1 미착수</dd>
+  </dl>
+  <div class="stamp">설계 기준문서 v0.1 &nbsp;·&nbsp; 2026.08.13 &nbsp;·&nbsp; 원문은 옵시디언 vault의 기획서 · 작업 로그 · 측정 기록 참조</div>
+  <div class="pgno">33</div>
+</section>
+
+</div>

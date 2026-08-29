@@ -1,0 +1,14 @@
+services:
+  prometheus:
+    image: prom/prometheus:v3.13.2
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro # 해당 경로에 prometheus.yml에에 꽂음 / :ro -> read-only : 컨테이너가 설정파일 못고치게 막는 것
+      - prometheus-data:/prometheus
+    extra_hosts:
+      - "host.docker.internal:host-gateway" #호스트에서 jvm으로 돌고 pmh는 컨테이너 안에있기 때문에 localhost는 앱을 못찾음 -> host.docker.internal이 나를 띄운 호스트를 가르키는 특수 이름임
+
+volumes:
+  prometheus-data: # 데이터 유지을 위한 볼륨 설정
