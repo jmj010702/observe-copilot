@@ -17,7 +17,7 @@
 
 배경·목표·아키텍처·로드맵·리스크는 Obsidian vault에 있다. 이 파일에 복사하지 말고, 설계 판단이 필요할 때 직접 읽을 것.
 
-경로는 모두 `C:\Users\USER\Desktop\develop_obsidian\observe-copilot\` 아래.
+경로는 모두 `~/Desktop/develop_obsidian/observe-copilot/` 아래. (2026-09-01 개발 환경이 Windows → macOS로 이전됨. 이전 기록에 남아 있는 `C:\Users\USER\...` 경로는 무시할 것)
 
 - 기획서: `observability-copilot-기획서.md` — **v3가 현재 기준**. `(v1 보관)`은 히스토리용이므로 참조하지 말 것
 - **학습 노트: `observe-copilot - 학습 노트.md`** — 개념 정리(관측성·메트릭 타입·Actuator·의존성 관계). **학습을 이어갈 때 여기부터 읽을 것**
@@ -218,6 +218,6 @@ relabel_configs:
 - **시스템 상태를 바꾸는 작업(컨테이너 정지, 앱 재시작, 파일 수정)은 먼저 물어본다.** 임의로 Redis를 껐다가 앱 전체가 멈춘 적 있음
 - **라이브러리 동작을 설명할 때는 context7로 공식 문서를 확인한다.** 추측으로 답했다가 두 번 틀렸다(`/actuator/env` 마스킹 여부, cloud-bus 전이 여부)
 - **여러 모듈에 같은 작업을 할 때는 "4개 모듈 전부"인지 "한 곳만"인지 먼저 밝힌다**
-- **셸에서 PromQL을 조회할 때는 `export MSYS_NO_PATHCONV=1`을 먼저 실행한다.** Git Bash가 `/actuator/health` 같은 라벨 값을 Windows 경로로 변환해서, **에러 없이 빈 결과**(`"status":"success"` + `"result":[]`)가 나온다. 실제로 "앱이 죽었나"까지 의심하며 시간을 썼다. 브라우저(`localhost:9090/query`)에서는 발생하지 않는다
+- **(Windows 시절 함정 — 2026-09-01 macOS 전환으로 해소)** 셸에서 PromQL을 조회할 때 Git Bash가 `/actuator/health` 같은 라벨 값을 Windows 경로로 변환해서, **에러 없이 빈 결과**(`"status":"success"` + `"result":[]`)가 나왔다. `export MSYS_NO_PATHCONV=1`로 회피했다. 실제로 "앱이 죽었나"까지 의심하며 시간을 썼다. 브라우저(`localhost:9090/query`)에서는 발생하지 않았다. **zsh에서는 재발하지 않으므로 더 이상 조치가 필요 없다.** 다만 바로 아래 항목(빈 결과의 원인 좁히기)은 환경과 무관하게 유효하다
 - **빈 결과가 나오면 "데이터가 없다"고 결론짓기 전에 필터를 하나씩 떼어보며 어느 조건에서 사라지는지 좁힌다**
 - **Prometheus 설정을 고쳤으면 `docker kill -s HUP prometheus`로 리로드한다.** `docker compose up -d`도 반영되지만 그건 리로드가 아니라 **컨테이너 재생성**이다 (PID·`Created` 시각으로 확인됨)
